@@ -11,8 +11,6 @@ function Weapon() {
     this.numberOfChargedCartridges = 0;
     this.chargedCartridge = null;
 
-    this.supportedCartridges = [];
-
     this.getPower = function () {
         return this.power;
     };
@@ -45,7 +43,7 @@ function Weapon() {
         return this.numberOfCartridges - this.tempNumberOfCartridges;
     };
 
-    this.shoot = function (pouch) {
+    this.shoot = function () {
         if (this.recharged && this.isCartridgeSupported(this.chargedCartridge) &&
             (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0 && this.rechargeDelayTime === 0)
         ) {
@@ -53,11 +51,16 @@ function Weapon() {
             this.tempDelayTime = this.delayTime;
             return true;
         }
+
+        return false;
+    };
+
+    this.shootWithAutoReloading = function(pouch){
+        var shooted = this.shoot();
         if (this.tempNumberOfCartridges === 0) {
             this.startRecharge(pouch);
         }
-
-        return false;
+        return shooted;
     };
 
     this.getRechargeTime = function () {
@@ -105,12 +108,9 @@ function Weapon() {
 
     this.isCartridgeSupported = function (cartridge) {
         if (!cartridge) return false;
-        for (var index = 0; index < this.supportedCartridges.length; index++) {
-            if (this.supportedCartridges[index] === cartridge.getType()) {
-                return true;
-            }
-        }
-        return false;
+        var cartridgeType = cartridge.getType().toLowerCase();
+        var weaponName = this.constructor.name.toLowerCase();
+        return cartridgeType.indexOf(weaponName) >= 0;
     };
 
     this.calculateBulletSpeed = function (cartridge) {
@@ -124,6 +124,6 @@ function Weapon() {
         if (this.isCartridgeSupported(cartridge)) {
             return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.getSize(), cartridge.getColor(), this.range, cartridge.getDamagePower() + this.getPower());
         }
-        throw new Error('Invalid type of cartridges');
+        throw new Error();
     };
 }

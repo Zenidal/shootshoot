@@ -12,6 +12,16 @@ function GameLoop() {
         new Pouch(new AutomaticExpansiveCartridge(), 600, 1000)
     ];
 
+    var visualPlayer = new gameObject.newCircleObject({
+        x: 300, y: 300,
+        radius: 20,
+        strokeColor: 'red',
+        strokeWidth: 3,
+        fillColor: 'black'
+    });
+    visualPlayer.player = new Player(pistol, 100);
+    visualPlayer.pouch = pouches[0];
+
     var visualEnemies = [];
     var visualBullets = [];
     OOP.fillArr(visualEnemies, 100, function () {
@@ -23,17 +33,6 @@ function GameLoop() {
         visualEnemy.enemy = new Enemy(100);
         return visualEnemy;
     });
-
-    var visualPlayer = new gameObject.newCircleObject({
-        x: 300, y: 300,
-        radius: 20,
-        strokeColor: 'red',
-        strokeWidth: 3,
-        fillColor: 'black'
-    });
-
-    visualPlayer.player = new Player(pistol, 100);
-    visualPlayer.pouch = pouches[0];
 
     var visualizeGrid = function (cellSize) {
         var startCameraX = camera.getPosition().x,
@@ -57,43 +56,46 @@ function GameLoop() {
         }
     };
 
-    var showWeaponArea = function (range) {
-        var delayTime = visualPlayer.player.getWeapon().getTempDelayTime(),
-            maxDelayTime = visualPlayer.player.getWeapon().getDelayTime();
-        if (visualPlayer.player.getWeapon().getRechargeDelayTime()) {
-            delayTime = visualPlayer.player.getWeapon().getRechargeDelayTime();
-            maxDelayTime = visualPlayer.player.getWeapon().getRechargeTime();
+    var showWeaponArea = function (weapon) {
+        var range = weapon.getRange();
+        var delayTime = weapon.getTempDelayTime(),
+            maxDelayTime = weapon.getDelayTime();
+        if (weapon.getRechargeDelayTime()) {
+            delayTime = weapon.getRechargeDelayTime();
+            maxDelayTime = weapon.getRechargeTime();
         }
 
         var areaColor = {
-            'r': 0,
-            'g': Math.round(delayTime / maxDelayTime * 255),
-            'b': 0
-        }, areaX = visualPlayer.x + visualPlayer.radius - range, areaY = visualPlayer.y + visualPlayer.radius - range;
+                'r': 0,
+                'g': Math.round(delayTime / maxDelayTime * 255),
+                'b': 0
+            },
+            areaX = visualPlayer.x + visualPlayer.radius - range,
+            areaY = visualPlayer.y + visualPlayer.radius - range;
 
         brush.drawCircle({
             x: areaX,
             y: areaY,
             radius: range,
             strokeWidth: 2,
-            strokeColor: visualPlayer.player.getWeapon().isCartridgeSupported(visualPlayer.player.getWeapon().getChargedCartridge()) ?visualPlayer.player.getWeapon().getChargedCartridge().getColor() : 'rgba(0,0,0,0)',
+            strokeColor: weapon.isCartridgeSupported(weapon.getChargedCartridge()) ? weapon.getChargedCartridge().getColor() : 'rgba(0,0,0,0)',
             fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', 0.2)'
         });
 
         brush.drawCircle({
             x: areaX - 2,
             y: areaY - 2,
-            radius: range + 2,
+            radius: weapon.getRange() + 2,
             strokeWidth: 2,
             strokeColor: visualPlayer.pouch.getCartridge().getColor()
         });
     };
 
-    var attackPlayer = function (enemy) {
+    var attackPlayer = function (visualEnemy) {
         var speedByAxis = Math.random() * 10;
-        var isPlayerLeft = visualPlayer.x < enemy.x, isPlayerTop = visualPlayer.y < enemy.y;
-        enemy.x = isPlayerLeft ? (enemy.x - speedByAxis) : (enemy.x + speedByAxis);
-        enemy.y = isPlayerTop ? (enemy.y - speedByAxis) : (enemy.y + speedByAxis);
+        var isPlayerLeft = visualPlayer.x < visualEnemy.x, isPlayerTop = visualPlayer.y < visualEnemy.y;
+        visualEnemy.x = isPlayerLeft ? (visualEnemy.x - speedByAxis) : (visualEnemy.x + speedByAxis);
+        visualEnemy.y = isPlayerTop ? (visualEnemy.y - speedByAxis) : (visualEnemy.y + speedByAxis);
     };
 
     var showEnemyHealthBar = function (visualEnemy) {
@@ -162,11 +164,10 @@ function GameLoop() {
         });
     };
 
-    var createBullet = function (visualPlayer, shotPosition) {
-        var angle = pjs.vector.getAngle2Points(visualPlayer.getPositionC(), shotPosition);
-        var startPosition = visualPlayer.getPositionC();
+    var createBullet = function (startPosition, shotPosition, weapon) {
+        var angle = pjs.vector.getAngle2Points(startPosition, shotPosition);
         try {
-            var bullet = new visualPlayer.player.getWeapon().createBulletFromCartridge(visualPlayer.player.getWeapon().getChargedCartridge(), angle);
+            var bullet = weapon.createBulletFromCartridge(weapon.getChargedCartridge(), angle);
         } catch (error) {
             log('Please change cartridges.');
             return null;
@@ -181,27 +182,36 @@ function GameLoop() {
         return visualBullet;
     };
 
+    var getNextPouch = function (pouches, pouch) {
+        var currentPosition = pouches.indexOf(pouch);
+        var nextPosition = (currentPosition + 1) >= pouches.length ? 0 : currentPosition + 1;
+        return pouches[nextPosition];
+    };
+
+    var getPrevPouch = function (pouches, pouch) {
+        var currentPosition = pouches.indexOf(pouch);
+        var previousPosition = (currentPosition - 1) <= 0 ? pouches.length - 1 : currentPosition - 1;
+        return pouches[previousPosition];
+    };
+
     this.update = function () {
         gameObject.clear();
 
         if (mouse.isWheel('UP')) {
-            var currentPosition = pouches.indexOf(visualPlayer.pouch);
-            var nextPosition = (currentPosition + 1) >= pouches.length ? 0 : currentPosition + 1;
-            visualPlayer.pouch = pouches[nextPosition];
+            visualPlayer.pouch = getNextPouch(pouches, visualPlayer.pouch);
         }
         if (mouse.isWheel('DOWN')) {
-            var currentPosition = pouches.indexOf(visualPlayer.pouch);
-            var previousPosition = (currentPosition - 1) <= 0 ? pouches.length - 1 : currentPosition - 1;
-            visualPlayer.pouch = pouches[previousPosition];
+            visualPlayer.pouch = getPrevPouch(pouches, visualPlayer.pouch);
         }
         if (mouse.isDown('LEFT')) {
-            if (visualPlayer.player.getWeapon().shoot(visualPlayer.pouch)) {
-                var visualBullet = createBullet(visualPlayer, mouse.getPosition());
+            if (visualPlayer.player.getWeapon().shootWithAutoReloading(visualPlayer.pouch)) {
+                var visualBullet = createBullet(visualPlayer.getPositionC(), mouse.getPosition(), visualPlayer.player.getWeapon());
                 if (visualBullet) {
                     visualBullets.push(visualBullet);
                 }
             }
         }
+
         visualPlayer.player.getWeapon().decreaseTempDelayTime();
         visualPlayer.player.getWeapon().decreaseRechargeDelayTime();
 
@@ -216,22 +226,20 @@ function GameLoop() {
 
         if (key.isDown('R')) visualPlayer.player.getWeapon().startRecharge(visualPlayer.pouch);
 
-        pjs.vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.getSpeed());
-        visualPlayer.player.stop();
-
         visualizeGrid(50);
         showEnemiesCount(visualEnemies);
         showNumberOfCartridges(visualPlayer.player.getWeapon());
         showTotalNumberOfCartridges(visualPlayer.pouch);
 
+        pjs.vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.getSpeed());
+        visualPlayer.player.stop();
         visualPlayer.draw();
         showPlayerHealthBar(visualPlayer);
-        showWeaponArea(visualPlayer.player.getWeapon().getRange());
+        showWeaponArea(visualPlayer.player.getWeapon());
 
-        OOP.drawArr(visualBullets, function (visualBullet) {
-            visualBullet.moveAngle(visualBullet.bullet.getSpeed(), visualBullet.bullet.getAngle());
-        });
         OOP.forArr(visualBullets, function (visualBullet, index, visualBullets) {
+            visualBullet.moveAngle(visualBullet.bullet.getSpeed(), visualBullet.bullet.getAngle());
+            visualBullet.draw();
             var visualEnemy = visualBullet.isArrIntersect(visualEnemies);
             if (visualEnemy) {
                 visualBullets.splice(index, 1);

@@ -2,7 +2,6 @@ function Player(playerWeapon, startHealth) {
     var weapon = playerWeapon;
     var health = startHealth;
     var speed = point(0, 0);
-    var cartridgesInPouch = [];
 
     this.getWeapon = function () {
         return weapon;
