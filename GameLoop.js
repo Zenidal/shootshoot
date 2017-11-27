@@ -4,15 +4,16 @@ function GameLoop() {
     var automatic = new Automatic();
 
     var visualEnemies = [];
-    for (var i = 0; i < 100; i++) {
+    var visualBullets = [];
+    OOP.fillArr(visualEnemies, 100, function () {
         var visualEnemy = gameObject.newCircleObject({
             x: 500 + Math.random() * 5000, y: 500 + Math.random() * 5000,
             radius: 10,
             fillColor: 'green'
         });
         visualEnemy.enemy = new Enemy(100);
-        visualEnemies.push(visualEnemy);
-    }
+        return visualEnemy;
+    });
 
     var visualPlayer = new gameObject.newCircleObject({
         x: 300, y: 300,
@@ -21,19 +22,8 @@ function GameLoop() {
         strokeWidth: 3,
         fillColor: 'black'
     });
+
     visualPlayer.player = new Player(pistol, 100);
-    visualPlayer.moveLeft = function (delta) {
-        this.x -= delta;
-    };
-    visualPlayer.moveRight = function (delta) {
-        this.x += delta;
-    };
-    visualPlayer.moveTop = function (delta) {
-        this.y -= delta;
-    };
-    visualPlayer.moveBottom = function (delta) {
-        this.y += delta;
-    };
 
     var visualizeGrid = function (cellSize) {
         var startCameraX = camera.getPosition().x,
@@ -46,7 +36,7 @@ function GameLoop() {
             startY = Math.floor(startCameraY / cellSize) * cellSize;
         for (var row = 0; row < verticalCellCount; row++) {
             for (var column = 0; column < horizontalCellCount; column++) {
-                pjs.brush.drawRect({
+                brush.drawRect({
                     x: startX + cellSize * column,
                     y: startY + cellSize * row,
                     w: cellSize, h: cellSize,
@@ -71,7 +61,7 @@ function GameLoop() {
             'b': 0
         };
 
-        pjs.brush.drawCircle({
+        brush.drawCircle({
             x: visualPlayer.x + visualPlayer.radius - range,
             y: visualPlayer.y + visualPlayer.radius - range,
             radius: range,
@@ -91,14 +81,14 @@ function GameLoop() {
     var showEnemyHealthBar = function (visualEnemy) {
         var healthBarWidth = visualEnemy.radius + 10;
         var activeBarWidth = healthBarWidth * visualEnemy.enemy.getHealth() / 100;
-        pjs.brush.drawRect({
+        brush.drawRect({
             x: visualEnemy.x,
             y: visualEnemy.y - 10,
             w: healthBarWidth, h: 6,
             strokeColor: 'red',
             strokeWidth: 1
         });
-        pjs.brush.drawRect({
+        brush.drawRect({
             x: visualEnemy.x,
             y: visualEnemy.y - 10,
             w: activeBarWidth, h: 6,
@@ -109,14 +99,14 @@ function GameLoop() {
     var showPlayerHealthBar = function (visualPlayer) {
         var healthBarWidth = visualPlayer.radius + 20;
         var activeBarWidth = healthBarWidth * visualPlayer.player.getHealth() / 100;
-        pjs.brush.drawRect({
+        brush.drawRect({
             x: visualPlayer.x,
             y: visualPlayer.y - 10,
             w: healthBarWidth, h: 6,
             strokeColor: 'red',
             strokeWidth: 1
         });
-        pjs.brush.drawRect({
+        brush.drawRect({
             x: visualPlayer.x,
             y: visualPlayer.y - 10,
             w: activeBarWidth, h: 6,
@@ -125,7 +115,7 @@ function GameLoop() {
     };
 
     var showEnemiesCount = function (visualEnemies) {
-        pjs.brush.drawText({
+        brush.drawText({
             x: camera.getPosition().x,
             y: camera.getPosition().y,
             text: 'Enemies: ' + visualEnemies.length,
@@ -135,7 +125,7 @@ function GameLoop() {
     };
 
     var showNumberOfCartridges = function (weapon) {
-        pjs.brush.drawText({
+        brush.drawText({
             x: camera.getPosition().x,
             y: camera.getPosition().y + 30,
             text: 'Number of cartridges: ' + weapon.getTempNumberOfCartridges(),
@@ -144,17 +134,27 @@ function GameLoop() {
         });
     };
 
+    var createBullet = function (visualPlayer, shotPosition) {
+        var angle = pjs.vector.getAngle2Points(visualPlayer.getPositionC(), shotPosition);
+        var startPosition = visualPlayer.getPositionC();
+        var bullet = new Bullet(4, angle, 2, visualPlayer.player.getWeapon().getRange(), visualPlayer.player.getWeapon().getPower());
+        var visualBullet = new gameObject.newCircleObject({
+            x: startPosition.x, y: startPosition.y,
+            radius: bullet.getSize(),
+            fillColor: 'yellow'
+        });
+        visualBullet.bullet = bullet;
+        visualBullet.startPosition = startPosition;
+        return visualBullet;
+    };
+
     this.update = function () {
         gameObject.clear();
 
         if (mouse.isDown('LEFT')) {
             if (visualPlayer.player.getWeapon().shoot(visualPlayer.x, visualPlayer.y, mouse.getPosition().x, mouse.getPosition().y)) {
-                OOP.forEach(visualEnemies, function (visualEnemy, index) {
-                    if (mouse.isInObject(visualEnemy)) {
-                        visualEnemy.enemy.getDamage(visualPlayer.player.getWeapon().getPower());
-                        if (visualEnemy.enemy.isDead()) visualEnemies.splice(index, 1);
-                    }
-                });
+                var visualBullet = createBullet(visualPlayer, mouse.getPosition());
+                visualBullets.push(visualBullet);
             }
         }
         visualPlayer.player.getWeapon().decreaseTempDelayTime();
@@ -164,12 +164,15 @@ function GameLoop() {
         if (key.isDown('2')) visualPlayer.player.setWeapon(gun);
         if (key.isDown('3')) visualPlayer.player.setWeapon(automatic);
 
-        if (key.isDown('W') || key.isDown('UP')) visualPlayer.moveTop(7);
-        if (key.isDown('S') || key.isDown('DOWN')) visualPlayer.moveBottom(7);
-        if (key.isDown('A') || key.isDown('LEFT')) visualPlayer.moveLeft(7);
-        if (key.isDown('D') || key.isDown('RIGHT')) visualPlayer.moveRight(7);
+        if (key.isDown('W') || key.isDown('UP')) visualPlayer.player.moveTop(7);
+        if (key.isDown('S') || key.isDown('DOWN')) visualPlayer.player.moveBottom(7);
+        if (key.isDown('A') || key.isDown('LEFT')) visualPlayer.player.moveLeft(7);
+        if (key.isDown('D') || key.isDown('RIGHT')) visualPlayer.player.moveRight(7);
 
         if (key.isDown('R')) visualPlayer.player.getWeapon().startRecharge();
+
+        pjs.vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.getSpeed());
+        visualPlayer.player.stop();
 
         visualizeGrid(50);
         showEnemiesCount(visualEnemies);
@@ -178,6 +181,23 @@ function GameLoop() {
         visualPlayer.draw();
         showPlayerHealthBar(visualPlayer);
         showWeaponArea(visualPlayer.player.getWeapon().getRange());
+
+        OOP.drawArr(visualBullets, function (visualBullet) {
+            visualBullet.moveAngle(visualBullet.bullet.getSpeed(), visualBullet.bullet.getAngle());
+        });
+        OOP.forArr(visualBullets, function (visualBullet, index, visualBullets) {
+            var visualEnemy = visualBullet.isArrIntersect(visualEnemies);
+            if (visualEnemy) {
+                visualEnemy.enemy.getDamage(visualBullet.bullet.getDamagePower());
+                if (visualEnemy.enemy.isDead()) {
+                    visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
+                }
+            }
+            if (pjs.vector.getDistance(visualBullet.startPosition, visualBullet.getPositionC()) >= visualBullet.bullet.getMaxRange()) {
+                visualBullets.splice(index, 1);
+            }
+        });
+
         OOP.drawArr(visualEnemies, function (enemy) {
             showEnemyHealthBar(enemy);
             attackPlayer(enemy);
