@@ -41,8 +41,7 @@ function Weapon() {
 
     this.shoot = function (cartridge, x1, y1, x2, y2) {
         if (this.recharged && this.isCartridgeIsSupported(cartridge) &&
-            (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0) &&
-            (x1 + this.range >= x2 && x1 - this.range <= x2 && y1 + this.range >= y2 && y1 - this.range <= y2)
+            (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0)
         ) {
             this.tempNumberOfCartridges--;
             this.tempDelayTime = this.delayTime;
