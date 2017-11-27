@@ -3,7 +3,13 @@ function GameLoop() {
     var gun = new Gun();
     var automatic = new Automatic();
 
-    var cartridges = [new PistolSimpleCartridge(), new PistolExpansiveCartridge(), new GunSimpleCartridge(), new AutomaticSimpleCartridge()];
+    var cartridges = [
+        new PistolSimpleCartridge(),
+        new PistolExpansiveCartridge(),
+        new GunSimpleCartridge(),
+        new GunExpansiveCartridge(),
+        new AutomaticSimpleCartridge()
+    ];
 
     var visualEnemies = [];
     var visualBullets = [];
@@ -70,7 +76,7 @@ function GameLoop() {
             radius: range,
             strokeWidth: 2,
             strokeColor: visualPlayer.player.getWeapon().isCartridgeIsSupported(visualPlayer.cartridge) ? visualPlayer.cartridge.getColor() : 'rgba(0,0,0,0)',
-            fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', 0.5)'
+            fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', 0.2)'
         });
     };
 
