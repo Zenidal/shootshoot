@@ -3,12 +3,13 @@ function GameLoop() {
     var gun = new Gun();
     var automatic = new Automatic();
 
-    var cartridges = [
-        new PistolSimpleCartridge(),
-        new PistolExpansiveCartridge(),
-        new GunSimpleCartridge(),
-        new GunExpansiveCartridge(),
-        new AutomaticSimpleCartridge()
+    var pouches = [
+        new Pouch(new PistolSimpleCartridge(), 300, 1000),
+        new Pouch(new PistolExpansiveCartridge(), 300, 1000),
+        new Pouch(new GunSimpleCartridge(), 150, 1000),
+        new Pouch(new GunExpansiveCartridge(), 150, 1000),
+        new Pouch(new AutomaticSimpleCartridge(), 600, 1000),
+        new Pouch(new AutomaticExpansiveCartridge(), 600, 1000)
     ];
 
     var visualEnemies = [];
@@ -32,7 +33,7 @@ function GameLoop() {
     });
 
     visualPlayer.player = new Player(pistol, 100);
-    visualPlayer.cartridge = cartridges[0];
+    visualPlayer.pouch = pouches[0];
 
     var visualizeGrid = function (cellSize) {
         var startCameraX = camera.getPosition().x,
@@ -75,8 +76,16 @@ function GameLoop() {
             y: areaY,
             radius: range,
             strokeWidth: 2,
-            strokeColor: visualPlayer.player.getWeapon().isCartridgeIsSupported(visualPlayer.cartridge) ? visualPlayer.cartridge.getColor() : 'rgba(0,0,0,0)',
+            strokeColor: visualPlayer.player.getWeapon().isCartridgeSupported(visualPlayer.player.getWeapon().getChargedCartridge()) ?visualPlayer.player.getWeapon().getChargedCartridge().getColor() : 'rgba(0,0,0,0)',
             fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', 0.2)'
+        });
+
+        brush.drawCircle({
+            x: areaX - 2,
+            y: areaY - 2,
+            radius: range + 2,
+            strokeWidth: 2,
+            strokeColor: visualPlayer.pouch.getCartridge().getColor()
         });
     };
 
@@ -143,11 +152,11 @@ function GameLoop() {
         });
     };
 
-    var showCartridgeType = function (cartridge) {
+    var showTotalNumberOfCartridges = function (pouch) {
         brush.drawText({
             x: camera.getPosition().x,
             y: camera.getPosition().y + 60,
-            text: 'Cartridge: ' + cartridge.getType(),
+            text: 'Total number of cartridges: ' + pouch.getTempCount(),
             color: 'white',
             size: 22
         });
@@ -157,7 +166,7 @@ function GameLoop() {
         var angle = pjs.vector.getAngle2Points(visualPlayer.getPositionC(), shotPosition);
         var startPosition = visualPlayer.getPositionC();
         try {
-            var bullet = new visualPlayer.player.getWeapon().createBulletFromCartridge(visualPlayer.cartridge, angle);
+            var bullet = new visualPlayer.player.getWeapon().createBulletFromCartridge(visualPlayer.player.getWeapon().getChargedCartridge(), angle);
         } catch (error) {
             log('Please change cartridges.');
             return null;
@@ -176,17 +185,17 @@ function GameLoop() {
         gameObject.clear();
 
         if (mouse.isWheel('UP')) {
-            var currentPosition = cartridges.indexOf(visualPlayer.cartridge);
-            var nextPosition = (currentPosition + 1) >= cartridges.length ? 0 : currentPosition + 1;
-            visualPlayer.cartridge = cartridges[nextPosition];
+            var currentPosition = pouches.indexOf(visualPlayer.pouch);
+            var nextPosition = (currentPosition + 1) >= pouches.length ? 0 : currentPosition + 1;
+            visualPlayer.pouch = pouches[nextPosition];
         }
         if (mouse.isWheel('DOWN')) {
-            var currentPosition = cartridges.indexOf(visualPlayer.cartridge);
-            var previousPosition = (currentPosition - 1) <= 0 ? cartridges.length - 1 : currentPosition - 1;
-            visualPlayer.cartridge = cartridges[previousPosition];
+            var currentPosition = pouches.indexOf(visualPlayer.pouch);
+            var previousPosition = (currentPosition - 1) <= 0 ? pouches.length - 1 : currentPosition - 1;
+            visualPlayer.pouch = pouches[previousPosition];
         }
         if (mouse.isDown('LEFT')) {
-            if (visualPlayer.player.getWeapon().shoot(visualPlayer.cartridge, visualPlayer.x, visualPlayer.y, mouse.getPosition().x, mouse.getPosition().y)) {
+            if (visualPlayer.player.getWeapon().shoot(visualPlayer.pouch)) {
                 var visualBullet = createBullet(visualPlayer, mouse.getPosition());
                 if (visualBullet) {
                     visualBullets.push(visualBullet);
@@ -205,7 +214,7 @@ function GameLoop() {
         if (key.isDown('A') || key.isDown('LEFT')) visualPlayer.player.moveLeft(7);
         if (key.isDown('D') || key.isDown('RIGHT')) visualPlayer.player.moveRight(7);
 
-        if (key.isDown('R')) visualPlayer.player.getWeapon().startRecharge();
+        if (key.isDown('R')) visualPlayer.player.getWeapon().startRecharge(visualPlayer.pouch);
 
         pjs.vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.getSpeed());
         visualPlayer.player.stop();
@@ -213,6 +222,7 @@ function GameLoop() {
         visualizeGrid(50);
         showEnemiesCount(visualEnemies);
         showNumberOfCartridges(visualPlayer.player.getWeapon());
+        showTotalNumberOfCartridges(visualPlayer.pouch);
 
         visualPlayer.draw();
         showPlayerHealthBar(visualPlayer);

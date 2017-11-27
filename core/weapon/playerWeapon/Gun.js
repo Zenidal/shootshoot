@@ -4,7 +4,6 @@ function Gun() {
     this.range = 200;
     this.delayTime = 70;
     this.numberOfCartridges = 6;
-    this.tempNumberOfCartridges = 6;
     this.rechargeTime = 300;
 
     this.supportedCartridges = ['gun-1', 'gun-3'];

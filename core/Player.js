@@ -27,7 +27,7 @@ function Player(playerWeapon, startHealth) {
     this.stop = function () {
         speed = point(0, 0);
     };
-    
+
     this.moveLeft = function (delta) {
         speed.x = -delta;
     };

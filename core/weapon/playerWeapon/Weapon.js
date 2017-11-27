@@ -8,6 +8,8 @@ function Weapon() {
     this.rechargeTime = 0;
     this.rechargeDelayTime = 0;
     this.recharged = true;
+    this.numberOfChargedCartridges = 0;
+    this.chargedCartridge = null;
 
     this.supportedCartridges = [];
 
@@ -39,16 +41,20 @@ function Weapon() {
         return this.tempNumberOfCartridges;
     };
 
-    this.shoot = function (cartridge, x1, y1, x2, y2) {
-        if (this.recharged && this.isCartridgeIsSupported(cartridge) &&
-            (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0)
+    this.getNumberOfMissingCartridges = function () {
+        return this.numberOfCartridges - this.tempNumberOfCartridges;
+    };
+
+    this.shoot = function (pouch) {
+        if (this.recharged && this.isCartridgeSupported(this.chargedCartridge) &&
+            (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0 && this.rechargeDelayTime === 0)
         ) {
             this.tempNumberOfCartridges--;
             this.tempDelayTime = this.delayTime;
-            if (this.tempNumberOfCartridges === 0) {
-                this.startRecharge();
-            }
             return true;
+        }
+        if (this.tempNumberOfCartridges === 0) {
+            this.startRecharge(pouch);
         }
 
         return false;
@@ -58,13 +64,21 @@ function Weapon() {
         return this.rechargeTime;
     };
 
-    this.startRecharge = function () {
-        this.rechargeDelayTime = this.rechargeTime;
-        this.recharged = false;
+    this.startRecharge = function (pouch) {
+        if (this.isCartridgeSupported(pouch.getCartridge()) && this.recharged && pouch.getTempCount() > 0) {
+            if (this.chargedCartridge !== pouch.getCartridge()) {
+                this.tempNumberOfCartridges = 0;
+                this.chargedCartridge = pouch.getCartridge();
+            }
+            this.numberOfChargedCartridges = pouch.removeCartridges(this.getNumberOfMissingCartridges());
+            this.rechargeDelayTime = this.rechargeTime;
+            this.recharged = false;
+        }
     };
 
     this.finishRecharge = function () {
-        this.tempNumberOfCartridges = this.numberOfCartridges;
+        this.tempNumberOfCartridges += this.numberOfChargedCartridges;
+        this.numberOfChargedCartridges = 0;
         this.recharged = true;
     };
 
@@ -85,7 +99,12 @@ function Weapon() {
         return this.recharged;
     };
 
-    this.isCartridgeIsSupported = function (cartridge) {
+    this.getChargedCartridge = function () {
+        return this.chargedCartridge;
+    };
+
+    this.isCartridgeSupported = function (cartridge) {
+        if (!cartridge) return false;
         for (var index = 0; index < this.supportedCartridges.length; index++) {
             if (this.supportedCartridges[index] === cartridge.getType()) {
                 return true;
@@ -95,14 +114,14 @@ function Weapon() {
     };
 
     this.calculateBulletSpeed = function (cartridge) {
-        if (this.isCartridgeIsSupported(cartridge)) {
+        if (this.isCartridgeSupported(cartridge)) {
             return this.getRange() / 10 - cartridge.getSize();
         }
         return 0;
     };
 
     this.createBulletFromCartridge = function (cartridge, angle) {
-        if (this.isCartridgeIsSupported(cartridge)) {
+        if (this.isCartridgeSupported(cartridge)) {
             return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.getSize(), cartridge.getColor(), this.range, cartridge.getDamagePower() + this.getPower());
         }
         throw new Error('Invalid type of cartridges');
