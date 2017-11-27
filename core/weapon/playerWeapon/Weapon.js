@@ -9,6 +9,8 @@ function Weapon() {
     this.rechargeDelayTime = 0;
     this.recharged = true;
 
+    this.supportedCartridges = [];
+
     this.getPower = function () {
         return this.power;
     };
@@ -37,8 +39,8 @@ function Weapon() {
         return this.tempNumberOfCartridges;
     };
 
-    this.shoot = function (x1, y1, x2, y2) {
-        if (this.recharged &&
+    this.shoot = function (cartridge, x1, y1, x2, y2) {
+        if (this.recharged && this.isCartridgeIsSupported(cartridge) &&
             (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0) &&
             (x1 + this.range >= x2 && x1 - this.range <= x2 && y1 + this.range >= y2 && y1 - this.range <= y2)
         ) {
@@ -82,5 +84,28 @@ function Weapon() {
 
     this.isRecharged = function () {
         return this.recharged;
+    };
+
+    this.isCartridgeIsSupported = function (cartridge) {
+        for (var index = 0; index < this.supportedCartridges.length; index++) {
+            if (this.supportedCartridges[index] === cartridge.getType()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    this.calculateBulletSpeed = function (cartridge) {
+        if (this.isCartridgeIsSupported(cartridge)) {
+            return this.getRange() / 10 - cartridge.getSize();
+        }
+        return 0;
+    };
+
+    this.createBulletFromCartridge = function (cartridge, angle) {
+        if (this.isCartridgeIsSupported(cartridge)) {
+            return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.getSize(), cartridge.getColor(), this.range, cartridge.getDamagePower() + this.getPower());
+        }
+        throw new Error('Invalid type of cartridges');
     };
 }

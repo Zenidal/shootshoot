@@ -6,6 +6,8 @@ function Automatic() {
     this.numberOfCartridges = 30;
     this.tempNumberOfCartridges = 30;
     this.rechargeTime = 230;
+
+    this.supportedCartridges = ['automatic-1'];
 }
 
 Automatic.prototype = Object.create(Weapon.prototype);

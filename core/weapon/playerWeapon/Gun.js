@@ -6,6 +6,8 @@ function Gun() {
     this.numberOfCartridges = 6;
     this.tempNumberOfCartridges = 6;
     this.rechargeTime = 300;
+
+    this.supportedCartridges = ['gun-1'];
 }
 
 Gun.prototype = Object.create(Weapon.prototype);

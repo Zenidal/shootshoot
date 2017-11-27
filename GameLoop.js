@@ -3,6 +3,8 @@ function GameLoop() {
     var gun = new Gun();
     var automatic = new Automatic();
 
+    var cartridges = [new PistolSimpleCartridge(), new PistolExpansiveCartridge(), new GunSimpleCartridge(), new AutomaticSimpleCartridge()];
+
     var visualEnemies = [];
     var visualBullets = [];
     OOP.fillArr(visualEnemies, 100, function () {
@@ -24,6 +26,7 @@ function GameLoop() {
     });
 
     visualPlayer.player = new Player(pistol, 100);
+    visualPlayer.cartridge = cartridges[0];
 
     var visualizeGrid = function (cellSize) {
         var startCameraX = camera.getPosition().x,
@@ -59,14 +62,14 @@ function GameLoop() {
             'r': 0,
             'g': Math.round(delayTime / maxDelayTime * 255),
             'b': 0
-        };
+        }, areaX = visualPlayer.x + visualPlayer.radius - range, areaY = visualPlayer.y + visualPlayer.radius - range;
 
         brush.drawCircle({
-            x: visualPlayer.x + visualPlayer.radius - range,
-            y: visualPlayer.y + visualPlayer.radius - range,
+            x: areaX,
+            y: areaY,
             radius: range,
-            strokeColor: 'white',
-            strokeWidth: 1,
+            strokeWidth: 2,
+            strokeColor: visualPlayer.player.getWeapon().isCartridgeIsSupported(visualPlayer.cartridge) ? visualPlayer.cartridge.getColor() : 'rgba(0,0,0,0)',
             fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', 0.5)'
         });
     };
@@ -134,14 +137,29 @@ function GameLoop() {
         });
     };
 
+    var showCartridgeType = function (cartridge) {
+        brush.drawText({
+            x: camera.getPosition().x,
+            y: camera.getPosition().y + 60,
+            text: 'Cartridge: ' + cartridge.getType(),
+            color: 'white',
+            size: 22
+        });
+    };
+
     var createBullet = function (visualPlayer, shotPosition) {
         var angle = pjs.vector.getAngle2Points(visualPlayer.getPositionC(), shotPosition);
         var startPosition = visualPlayer.getPositionC();
-        var bullet = new Bullet(4, angle, 2, visualPlayer.player.getWeapon().getRange(), visualPlayer.player.getWeapon().getPower());
+        try {
+            var bullet = new visualPlayer.player.getWeapon().createBulletFromCartridge(visualPlayer.cartridge, angle);
+        } catch (error) {
+            log('Please change cartridges.');
+            return null;
+        }
         var visualBullet = new gameObject.newCircleObject({
             x: startPosition.x, y: startPosition.y,
             radius: bullet.getSize(),
-            fillColor: 'yellow'
+            fillColor: bullet.getColor()
         });
         visualBullet.bullet = bullet;
         visualBullet.startPosition = startPosition;
@@ -151,10 +169,22 @@ function GameLoop() {
     this.update = function () {
         gameObject.clear();
 
+        if (mouse.isWheel('UP')) {
+            var currentPosition = cartridges.indexOf(visualPlayer.cartridge);
+            var nextPosition = (currentPosition + 1) >= cartridges.length ? 0 : currentPosition + 1;
+            visualPlayer.cartridge = cartridges[nextPosition];
+        }
+        if (mouse.isWheel('DOWN')) {
+            var currentPosition = cartridges.indexOf(visualPlayer.cartridge);
+            var previousPosition = (currentPosition - 1) <= 0 ? cartridges.length - 1 : currentPosition - 1;
+            visualPlayer.cartridge = cartridges[previousPosition];
+        }
         if (mouse.isDown('LEFT')) {
-            if (visualPlayer.player.getWeapon().shoot(visualPlayer.x, visualPlayer.y, mouse.getPosition().x, mouse.getPosition().y)) {
+            if (visualPlayer.player.getWeapon().shoot(visualPlayer.cartridge, visualPlayer.x, visualPlayer.y, mouse.getPosition().x, mouse.getPosition().y)) {
                 var visualBullet = createBullet(visualPlayer, mouse.getPosition());
-                visualBullets.push(visualBullet);
+                if (visualBullet) {
+                    visualBullets.push(visualBullet);
+                }
             }
         }
         visualPlayer.player.getWeapon().decreaseTempDelayTime();
@@ -188,6 +218,7 @@ function GameLoop() {
         OOP.forArr(visualBullets, function (visualBullet, index, visualBullets) {
             var visualEnemy = visualBullet.isArrIntersect(visualEnemies);
             if (visualEnemy) {
+                visualBullets.splice(index, 1);
                 visualEnemy.enemy.getDamage(visualBullet.bullet.getDamagePower());
                 if (visualEnemy.enemy.isDead()) {
                     visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);

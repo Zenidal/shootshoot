@@ -1,7 +1,8 @@
-function Bullet(bulletSpeed, bulletAngle, bulletSize, bulletMaxRange, bulletDamagePower) {
+function Bullet(bulletSpeed, bulletAngle, bulletSize, bulletColor, bulletMaxRange, bulletDamagePower) {
     var speed = bulletSpeed;
     var angle = bulletAngle;
     var size = bulletSize;
+    var color = bulletColor;
     var maxRange = bulletMaxRange;
     var damagePower = bulletDamagePower;
 
@@ -25,11 +26,15 @@ function Bullet(bulletSpeed, bulletAngle, bulletSize, bulletMaxRange, bulletDama
         return size;
     };
 
+    this.getColor = function () {
+        return color;
+    };
+
     this.getMaxRange = function () {
         return maxRange;
     };
 
     this.getDamagePower = function () {
-        return damagePower;
-    }
+        return damagePower * speed / 10;
+    };
 }
