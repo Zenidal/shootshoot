@@ -1,9 +1,10 @@
- class Cartridge {
+class Cartridge {
     constructor() {
         this._size = 0;
         this._damagePower = 0;
         this._type = '';
         this._color = '';
+        this._armorPiercing = 0;
     }
 
     get size() {
@@ -21,4 +22,8 @@
     get color() {
         return this._color;
     };
-};
+
+    get armorPiercing() {
+        return this._armorPiercing;
+    }
+}

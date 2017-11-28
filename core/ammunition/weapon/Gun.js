@@ -6,5 +6,6 @@ class Gun extends Weapon {
         this._delayTime = 70;
         this._numberOfCartridges = 6;
         this._rechargeTime = 300;
+        this._startBulletSpeed = 4;
     }
 }

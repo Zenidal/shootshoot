@@ -3,6 +3,7 @@ class Enemy {
         this._health = startHealth ? startHealth : 0;
         this._dead = false;
         this._speed = point(0, 0);
+        this._armor = null;
     }
 
     get health() {
@@ -16,11 +17,21 @@ class Enemy {
     get speed() {
         return this._speed;
     }
+
     set speed(value) {
         this._speed = value;
     }
 
+    get armor() {
+        return this._armor;
+    }
+
+    set armor(value) {
+        this._armor = value;
+    }
+
     getDamage(damage) {
+        if(this._armor) damage = this.armor.getUnprotectedDamage(damage);
         this._health -= damage;
         if (this._health < 0) this._dead = true;
     };

@@ -96,6 +96,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         if (key.isDown('1')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 0);
         if (key.isDown('2')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 1);
         if (key.isDown('3')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 2);
+        if (key.isDown('4')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 3);
 
         if (key.isDown('W') || key.isDown('UP')) visualPlayer.player.moveTop(7);
         if (key.isDown('S') || key.isDown('DOWN')) visualPlayer.player.moveBottom(7);

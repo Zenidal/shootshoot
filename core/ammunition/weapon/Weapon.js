@@ -11,6 +11,7 @@ class Weapon {
         this._recharged = true;
         this._numberOfChargedCartridges = 0;
         this._chargedCartridge = null;
+        this._startBulletSpeed = 0;
     }
 
     get power() {
@@ -117,7 +118,7 @@ class Weapon {
 
     calculateBulletSpeed(cartridge) {
         if (this.isCartridgeSupported(cartridge)) {
-            return this._range / 10 - cartridge.size;
+            return this._startBulletSpeed + this._range / 10 / cartridge.size;
         }
         return 0;
     };

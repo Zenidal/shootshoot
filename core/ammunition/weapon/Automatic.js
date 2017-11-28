@@ -6,5 +6,6 @@ class Automatic extends Weapon {
         this._delayTime = 5;
         this._numberOfCartridges = 30;
         this._rechargeTime = 230;
+        this._startBulletSpeed = 5;
     }
 }
