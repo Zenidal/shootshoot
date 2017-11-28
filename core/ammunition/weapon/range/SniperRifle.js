@@ -1,4 +1,4 @@
-class SniperRifle extends Weapon {
+class SniperRifle extends RangeWeapon {
     constructor() {
         super();
         this._power = 50;

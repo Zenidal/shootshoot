@@ -4,6 +4,7 @@ class PlayerConfig{
         this._playerSize = 40;
         this._playerStartPosition = {x: 300, y: 300};
         this._color = 'black';
+        this._startSpeed = 4;
     }
 
     get playerSize() {
@@ -20,5 +21,9 @@ class PlayerConfig{
 
     get color() {
         return this._color;
+    }
+
+    get startSpeed() {
+        return this._startSpeed;
     }
 }

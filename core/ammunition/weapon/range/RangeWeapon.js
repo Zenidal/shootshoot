@@ -1,4 +1,4 @@
-class Weapon {
+class RangeWeapon {
     constructor() {
         this._power = 0;
         this._range = 0;

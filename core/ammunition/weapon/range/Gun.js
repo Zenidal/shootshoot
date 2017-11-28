@@ -1,4 +1,4 @@
-class Gun extends Weapon {
+class Gun extends RangeWeapon {
     constructor() {
         super();
         this._power = 40;
