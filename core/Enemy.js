@@ -1,9 +1,10 @@
 class Enemy {
-    constructor(startHealth) {
+    constructor(startHealth, startSpeed) {
         this._health = startHealth ? startHealth : 0;
         this._dead = false;
-        this._speed = point(0, 0);
+        this._tempSpeed = point(0, 0);
         this._armor = null;
+        this._speed = startSpeed; //it's not point
     }
 
     get health() {
@@ -18,8 +19,12 @@ class Enemy {
         return this._speed;
     }
 
-    set speed(value) {
-        this._speed = value;
+    get tempSpeed() {
+        return this._tempSpeed;
+    }
+
+    set tempSpeed(value) {
+        this._tempSpeed = value;
     }
 
     get armor() {
@@ -31,28 +36,32 @@ class Enemy {
     }
 
     getDamage(damage) {
-        if(this._armor) damage = this.armor.getUnprotectedDamage(damage);
+        if (this._armor) damage = this.armor.getUnprotectedDamage(damage);
         this._health -= damage;
         if (this._health < 0) this._dead = true;
     };
 
     stop() {
-        this._speed = point(0, 0);
+        this._tempSpeed = point(0, 0);
+    };
+
+    move(vector) {
+        this._tempSpeed = vector;
     };
 
     moveLeft(delta) {
-        this._speed.x = -delta;
+        this._tempSpeed.x = -delta;
     };
 
     moveRight(delta) {
-        this._speed.x = delta;
+        this._tempSpeed.x = delta;
     };
 
     moveTop(delta) {
-        this._speed.y = -delta;
+        this._tempSpeed.y = -delta;
     };
 
     moveBottom(delta) {
-        this._speed.y = delta;
+        this._tempSpeed.y = delta;
     };
 }

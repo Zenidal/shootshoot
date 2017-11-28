@@ -1,14 +1,17 @@
 class Player {
-    constructor(playerWeapon, startHealth) {
-        this._weapon = playerWeapon;
+    constructor(weapon, startHealth, speed) {
+        this._weapon = weapon;
         this._health = startHealth;
-        this._speed = point(0, 0);
+        this._tempSpeed = point(0, 0);
+        this._speed = speed; //it's not point
         this._armor = null;
+        this._dead = false;
     }
 
     get weapon() {
         return this._weapon;
     };
+
     set weapon(playerWeapon) {
         this._weapon = playerWeapon;
     };
@@ -20,40 +23,46 @@ class Player {
     get speed() {
         return this._speed;
     };
-    set speed(playerSpeed) {
-        this._speed = playerSpeed;
+
+    get tempSpeed() {
+        return this._tempSpeed;
     };
 
     get armor() {
         return this._armor;
     }
+
     set armor(value) {
         this._armor = value;
     }
 
+    get dead() {
+        return this._dead;
+    }
+
     getDamage(damage) {
-        if(this._armor) damage = this.armor.getUnprotectedDamage(damage);
+        if (this._armor) damage = this.armor.getUnprotectedDamage(damage);
         this._health -= damage;
         if (this._health < 0) this._dead = true;
     };
 
     stop() {
-        this._speed = point(0, 0);
+        this._tempSpeed = point(0, 0);
     };
 
-    moveLeft(delta) {
-        this._speed.x = -delta;
+    moveLeft() {
+        this._tempSpeed.x = -this._speed;
     };
 
-    moveRight(delta) {
-        this._speed.x = delta;
+    moveRight() {
+        this._tempSpeed.x = this._speed;
     };
 
-    moveTop(delta) {
-        this._speed.y = -delta;
+    moveTop() {
+        this._tempSpeed.y = -this._speed;
     };
 
-    moveBottom(delta) {
-        this._speed.y = delta;
+    moveBottom() {
+        this._tempSpeed.y = this._speed;
     };
 }

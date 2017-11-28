@@ -1,4 +1,4 @@
-class Automatic extends Weapon {
+class Automatic extends RangeWeapon {
     constructor() {
         super();
         this._power = 20;
