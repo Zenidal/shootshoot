@@ -1,17 +1,19 @@
-function Enemy(startHealth) {
-    var health = startHealth;
-    var dead = false;
+class Enemy {
+    constructor(startHealth) {
+        this._health = startHealth ? startHealth : 0;
+        this._dead = false;
+    }
 
-    this.getHealth = function () {
-        return health;
+    get health() {
+        return this._health;
     };
 
-    this.getDamage = function (damage) {
-        health -= damage;
-        if (health < 0) dead = true;
+    get dead() {
+        return this._dead;
     };
 
-    this.isDead = function () {
-        return dead;
+    getDamage(damage) {
+        this._health -= damage;
+        if (this._health < 0) this._dead = true;
     };
 }

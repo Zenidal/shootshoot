@@ -1,10 +1,9 @@
-function AutomaticSimpleCartridge() {
-    Cartridge.apply(this, arguments);
-    this.size = 2;
-    this.color = '#AAAAFF';
-    this.damagePower = 10;
-    this.type = 'automatic-1';
+class AutomaticSimpleCartridge extends Cartridge {
+    constructor() {
+        super();
+        this._size = 2;
+        this._color = '#AAAAFF';
+        this._damagePower = 10;
+        this._type = 'automatic-1';
+    }
 }
-
-AutomaticSimpleCartridge.prototype = Object.create(Cartridge.prototype);
-AutomaticSimpleCartridge.prototype.constructor = AutomaticSimpleCartridge;

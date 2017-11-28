@@ -1,22 +1,24 @@
-function Cartridge() {
-    this.size = 0;
-    this.damagePower = 0;
-    this.type = '';
-    this.color = '';
+ class Cartridge {
+    constructor() {
+        this._size = 0;
+        this._damagePower = 0;
+        this._type = '';
+        this._color = '';
+    }
 
-    this.getSize = function () {
-        return this.size;
+    get size() {
+        return this._size;
     };
 
-    this.getDamagePower = function () {
-        return this.damagePower;
+    get damagePower() {
+        return this._damagePower;
     };
 
-    this.getType = function () {
-        return this.type;
+    get type() {
+        return this._type;
     };
 
-    this.getColor = function () {
-        return this.color;
+    get color() {
+        return this._color;
     };
-}
+};

@@ -1,10 +1,9 @@
-function PistolExpansiveCartridge() {
-    Cartridge.apply(this, arguments);
-    this.size = 3;
-    this.color = '#FFFF00';
-    this.damagePower = 15;
-    this.type = 'pistol-3';
+class PistolExpansiveCartridge extends Cartridge {
+    constructor() {
+        super();
+        this._size = 3;
+        this._color = '#FFFF00';
+        this._damagePower = 15;
+        this._type = 'pistol-3';
+    }
 }
-
-PistolExpansiveCartridge.prototype = Object.create(Cartridge.prototype);
-PistolExpansiveCartridge.prototype.constructor = PistolExpansiveCartridge;

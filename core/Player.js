@@ -1,42 +1,47 @@
-function Player(playerWeapon, startHealth) {
-    var weapon = playerWeapon;
-    var health = startHealth;
-    var speed = point(0, 0);
+class Player {
+    constructor(playerWeapon, startHealth) {
+        this._weapon = playerWeapon;
+        this._health = startHealth;
+        this._speed = point(0, 0);
+    }
 
-    this.getWeapon = function () {
-        return weapon;
-    };
-
-    this.setWeapon = function (playerWeapon) {
-        weapon = playerWeapon;
+    get weapon() {
+        return this._weapon;
     };
 
-    this.getHealth = function () {
-        return health;
+    set weapon(playerWeapon) {
+        this._weapon = playerWeapon;
     };
 
-    this.getSpeed = function () {
-        return speed;
+    get health() {
+        return this._health;
     };
 
-    this.setSpeed = function (playerSpeed) {
-        speed = playerSpeed;
+    get speed() {
+        return this._speed;
     };
 
-    this.stop = function () {
-        speed = point(0, 0);
+    set speed(playerSpeed) {
+        this._speed = playerSpeed;
     };
 
-    this.moveLeft = function (delta) {
-        speed.x = -delta;
+    stop() {
+        this._speed = point(0, 0);
     };
-    this.moveRight = function (delta) {
-        speed.x = delta;
+
+    moveLeft(delta) {
+        this._speed.x = -delta;
     };
-    this.moveTop = function (delta) {
-        speed.y = -delta;
+
+    moveRight(delta) {
+        this._speed.x = delta;
     };
-    this.moveBottom = function (delta) {
-        speed.y = delta;
+
+    moveTop(delta) {
+        this._speed.y = -delta;
+    };
+
+    moveBottom(delta) {
+        this._speed.y = delta;
     };
 }

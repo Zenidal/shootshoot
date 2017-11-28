@@ -1,38 +1,40 @@
-function Pouch(pouchCartridge, pouchCapacity, pouchTempCount) {
-    var cartridge = pouchCartridge;
-    var capacity = pouchCapacity;
-    var tempCount = pouchTempCount > pouchCapacity ? pouchCapacity : pouchTempCount;
+class Pouch {
+    constructor(pouchCartridge, pouchCapacity, pouchTempCount) {
+        this._cartridge = pouchCartridge;
+        this._capacity = pouchCapacity;
+        this._tempCount = pouchTempCount > pouchCapacity ? pouchCapacity : pouchTempCount;
+    }
 
-    this.getCartridge = function () {
-        return cartridge;
+    get cartridge() {
+        return this._cartridge;
     };
 
-    this.getCapacity = function () {
-        return capacity;
+    get capacity() {
+        return this._capacity;
     };
 
-    this.getTempCount = function () {
-        return tempCount;
+    get tempCount() {
+        return this._tempCount;
     };
 
-    this.addCartridges = function (cartridgesCount) {
-        if (tempCount + cartridgesCount <= capacity) {
-            tempCount += cartridgesCount;
+    addCartridges(cartridgesCount) {
+        if (this._tempCount + cartridgesCount <= capacity) {
+            this._tempCount += cartridgesCount;
             return cartridgesCount;
         }
 
-        tempCount = capacity;
+        this._tempCount = capacity;
         return cartridgesCount;
     };
 
-    this.removeCartridges = function (cartridgesCount) {
-        if (tempCount - cartridgesCount >= 0) {
-            tempCount -= cartridgesCount;
+    removeCartridges(cartridgesCount) {
+        if (this._tempCount - cartridgesCount >= 0) {
+            this._tempCount -= cartridgesCount;
             return cartridgesCount;
         }
 
-        var removedCartridgesCount = tempCount;
-        tempCount = 0;
+        let removedCartridgesCount = tempCount;
+        this._tempCount = 0;
         return removedCartridgesCount;
     };
 }

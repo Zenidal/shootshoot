@@ -1,13 +1,10 @@
-function Gun() {
-    Weapon.apply(this, arguments);
-    this.power = 40;
-    this.range = 200;
-    this.delayTime = 70;
-    this.numberOfCartridges = 6;
-    this.rechargeTime = 300;
-
-    this.supportedCartridges = ['gun-1', 'gun-3'];
+class Gun extends Weapon {
+    constructor() {
+        super();
+        this._power = 40;
+        this._range = 200;
+        this._delayTime = 70;
+        this._numberOfCartridges = 6;
+        this._rechargeTime = 300;
+    }
 }
-
-Gun.prototype = Object.create(Weapon.prototype);
-Gun.prototype.constructor = Gun;

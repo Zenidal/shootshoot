@@ -1,40 +1,42 @@
-function Bullet(bulletSpeed, bulletAngle, bulletSize, bulletColor, bulletMaxRange, bulletDamagePower) {
-    var speed = bulletSpeed;
-    var angle = bulletAngle;
-    var size = bulletSize;
-    var color = bulletColor;
-    var maxRange = bulletMaxRange;
-    var damagePower = bulletDamagePower;
+class Bullet {
+    constructor(bulletSpeed, bulletAngle, bulletSize, bulletColor, bulletMaxRange, bulletDamagePower) {
+        this._speed = bulletSpeed;
+        this._angle = bulletAngle;
+        this._size = bulletSize;
+        this._color = bulletColor;
+        this._maxRange = bulletMaxRange;
+        this._damagePower = bulletDamagePower;
+    }
 
-    this.getSpeed = function () {
-        return speed;
+    get speed() {
+        return this._speed;
     };
 
-    this.setSpeed = function (bulletSpeed) {
-        speed = bulletSpeed;
+    set speed(bulletSpeed) {
+        this._speed = bulletSpeed;
     };
 
-    this.getAngle = function () {
-        return angle;
+    get angle() {
+        return this._angle;
     };
 
-    this.setAngle = function (bulletAngle) {
-        angle = bulletAngle;
+    set angle(bulletAngle) {
+        this._angle = bulletAngle;
     };
 
-    this.getSize = function () {
-        return size;
+    get size() {
+        return this._size;
     };
 
-    this.getColor = function () {
-        return color;
+    get color() {
+        return this._color;
     };
 
-    this.getMaxRange = function () {
-        return maxRange;
+    get maxRange() {
+        return this._maxRange;
     };
 
-    this.getDamagePower = function () {
-        return damagePower * speed / 10;
+    get damagePower() {
+        return this._damagePower * this._speed / 10;
     };
 }

@@ -1,128 +1,130 @@
-function Weapon() {
-    this.power = 0;
-    this.range = 0;
-    this.delayTime = 0;
-    this.tempDelayTime = 0;
-    this.numberOfCartridges = 0;
-    this.tempNumberOfCartridges = 0;
-    this.rechargeTime = 0;
-    this.rechargeDelayTime = 0;
-    this.recharged = true;
-    this.numberOfChargedCartridges = 0;
-    this.chargedCartridge = null;
+class Weapon {
+    constructor() {
+        this._power = 0;
+        this._range = 0;
+        this._delayTime = 0;
+        this._tempDelayTime = 0;
+        this._numberOfCartridges = 0;
+        this._tempNumberOfCartridges = 0;
+        this._rechargeTime = 0;
+        this._rechargeDelayTime = 0;
+        this._recharged = true;
+        this._numberOfChargedCartridges = 0;
+        this._chargedCartridge = null;
+    }
 
-    this.getPower = function () {
-        return this.power;
+    get power() {
+        return this._power;
     };
 
-    this.getRange = function () {
-        return this.range;
+    get range() {
+        return this._range;
     };
 
-    this.getDelayTime = function () {
-        return this.delayTime;
+    get delayTime() {
+        return this._delayTime;
     };
 
-    this.getTempDelayTime = function () {
-        return this.tempDelayTime;
+    get tempDelayTime() {
+        return this._tempDelayTime;
     };
 
-    this.decreaseTempDelayTime = function () {
-        if (this.tempDelayTime > 0) this.tempDelayTime--;
+    get numberOfCartridges() {
+        return this._numberOfCartridges;
     };
 
-    this.getNumberOfCartridges = function () {
-        return this.numberOfCartridges;
+    get tempNumberOfCartridges() {
+        return this._tempNumberOfCartridges;
     };
 
-    this.getTempNumberOfCartridges = function () {
-        return this.tempNumberOfCartridges;
+    get rechargeTime() {
+        return this._rechargeTime;
     };
 
-    this.getNumberOfMissingCartridges = function () {
-        return this.numberOfCartridges - this.tempNumberOfCartridges;
+    get recharged() {
+        return this._recharged;
     };
 
-    this.shoot = function () {
-        if (this.recharged && this.isCartridgeSupported(this.chargedCartridge) &&
-            (this.tempNumberOfCartridges > 0 && this.tempDelayTime === 0 && this.rechargeDelayTime === 0)
+    get chargedCartridge() {
+        return this._chargedCartridge;
+    };
+
+    get rechargeDelayTime() {
+        return this._rechargeDelayTime;
+    };
+
+    decreaseTempDelayTime() {
+        if (this._tempDelayTime > 0) this._tempDelayTime--;
+    };
+
+    getNumberOfMissingCartridges() {
+        return this._numberOfCartridges - this._tempNumberOfCartridges;
+    };
+
+    shoot() {
+        if (this._recharged && this.isCartridgeSupported(this._chargedCartridge) &&
+            (this._tempNumberOfCartridges > 0 && this._tempDelayTime === 0 && this._rechargeDelayTime === 0)
         ) {
-            this.tempNumberOfCartridges--;
-            this.tempDelayTime = this.delayTime;
+            this._tempNumberOfCartridges--;
+            this._tempDelayTime = this._delayTime;
             return true;
         }
 
         return false;
     };
 
-    this.shootWithAutoReloading = function(pouch){
-        var shooted = this.shoot();
-        if (this.tempNumberOfCartridges === 0) {
+    shootWithAutoReloading(pouch) {
+        let shooted = this.shoot();
+        if (this._tempNumberOfCartridges === 0) {
             this.startRecharge(pouch);
         }
         return shooted;
     };
 
-    this.getRechargeTime = function () {
-        return this.rechargeTime;
-    };
-
-    this.startRecharge = function (pouch) {
-        if (this.isCartridgeSupported(pouch.getCartridge()) && this.recharged && pouch.getTempCount() > 0) {
-            if (this.chargedCartridge !== pouch.getCartridge()) {
-                this.tempNumberOfCartridges = 0;
-                this.chargedCartridge = pouch.getCartridge();
+    startRecharge(pouch) {
+        if (this.isCartridgeSupported(pouch.cartridge) && this._recharged && pouch.tempCount > 0) {
+            if (this._chargedCartridge !== pouch.cartridge) {
+                this._tempNumberOfCartridges = 0;
+                this._chargedCartridge = pouch.cartridge;
             }
-            this.numberOfChargedCartridges = pouch.removeCartridges(this.getNumberOfMissingCartridges());
-            this.rechargeDelayTime = this.rechargeTime;
-            this.recharged = false;
+            this._numberOfChargedCartridges = pouch.removeCartridges(this.getNumberOfMissingCartridges());
+            this._rechargeDelayTime = this._rechargeTime;
+            this._recharged = false;
         }
     };
 
-    this.finishRecharge = function () {
-        this.tempNumberOfCartridges += this.numberOfChargedCartridges;
-        this.numberOfChargedCartridges = 0;
-        this.recharged = true;
+    finishRecharge() {
+        this._tempNumberOfCartridges += this._numberOfChargedCartridges;
+        this._numberOfChargedCartridges = 0;
+        this._recharged = true;
     };
 
-    this.getRechargeDelayTime = function () {
-        return this.rechargeDelayTime;
-    };
-
-    this.decreaseRechargeDelayTime = function () {
-        if (this.rechargeDelayTime > 0) {
-            this.rechargeDelayTime--;
+    decreaseRechargeDelayTime() {
+        if (this._rechargeDelayTime > 0) {
+            this._rechargeDelayTime--;
         }
-        if (this.rechargeDelayTime === 0 && !this.recharged) {
+        if (this._rechargeDelayTime === 0 && !this._recharged) {
             this.finishRecharge();
         }
     };
 
-    this.isRecharged = function () {
-        return this.recharged;
-    };
-
-    this.getChargedCartridge = function () {
-        return this.chargedCartridge;
-    };
-
-    this.isCartridgeSupported = function (cartridge) {
+    isCartridgeSupported(cartridge) {
         if (!cartridge) return false;
-        var cartridgeType = cartridge.getType().toLowerCase();
-        var weaponName = this.constructor.name.toLowerCase();
+        let cartridgeType = cartridge.type.toLowerCase();
+        let weaponName = this.constructor.name.toLowerCase();
         return cartridgeType.indexOf(weaponName) >= 0;
     };
 
-    this.calculateBulletSpeed = function (cartridge) {
+    calculateBulletSpeed(cartridge) {
         if (this.isCartridgeSupported(cartridge)) {
-            return this.getRange() / 10 - cartridge.getSize();
+            return this._range / 10 - cartridge.size;
         }
         return 0;
     };
 
-    this.createBulletFromCartridge = function (cartridge, angle) {
+    createBulletFromCartridge(cartridge, angle) {
         if (this.isCartridgeSupported(cartridge)) {
-            return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.getSize(), cartridge.getColor(), this.range, cartridge.getDamagePower() + this.getPower());
+            return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.size, cartridge.color, this._range, cartridge.damagePower + this._power);
         }
         throw new Error();
     };
