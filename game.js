@@ -121,7 +121,13 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             brush,
             visualPlayer.player.weapon,
             point(visualPlayer.x + visualPlayer.radius - visualPlayer.player.weapon.range, visualPlayer.y + visualPlayer.radius - visualPlayer.player.weapon.range),
-            visualPlayer.pouch.cartridge.color
+            visualPlayer.pouch.cartridge.color,
+            2
+        );
+        EffectsVisualizer.visualizeCartridges(
+            visualPlayer.player.weapon,
+            point(visualPlayer.x + visualPlayer.radius - visualPlayer.player.weapon.range, visualPlayer.y + visualPlayer.radius - visualPlayer.player.weapon.range),
+            2
         );
         EffectsVisualizer.visualizeHealthBar(point(visualPlayer.x, visualPlayer.y - 10), visualPlayer.radius + 20, 6, visualPlayer.player.health, 100);
 

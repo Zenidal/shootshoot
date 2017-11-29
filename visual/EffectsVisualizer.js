@@ -25,8 +25,7 @@ class EffectsVisualizer {
         }
     };
 
-    static visualizeWeaponArea(brush, weapon, areaPosition, overflow, unsupportedWeaponColor) {
-        if (!unsupportedWeaponColor) unsupportedWeaponColor = 'rgba(0,0,0,0)';
+    static visualizeWeaponArea(brush, weapon, areaPosition, overflow) {
         if (!overflow) overflow = 0.2;
 
         let delayTime = weapon.tempDelayTime,
@@ -46,25 +45,41 @@ class EffectsVisualizer {
             x: areaPosition.x,
             y: areaPosition.y,
             radius: weapon.range,
-            strokeWidth: 2,
-            strokeColor: weapon.isCartridgeSupported(weapon.chargedCartridge) ? weapon.chargedCartridge.color : unsupportedWeaponColor,
             fillColor: 'rgba(' + areaColor.r + ',' + areaColor.g + ',' + areaColor.b + ', ' + overflow + ')'
         });
     }
 
-    static visualizeSelectingCartridge(brush, weapon, areaPosition, pouchCartridgeColor){
+    static visualizeCartridges(weapon, areaPosition, strokeWidth, unsupportedWeaponColor) {
+        if (!unsupportedWeaponColor) unsupportedWeaponColor = 'rgba(0,0,0,0)';
+
+        if (!strokeWidth) strokeWidth = 2;
+        let strokeStyle = weapon.isCartridgeSupported(weapon.chargedCartridge) ? weapon.chargedCartridge.color : unsupportedWeaponColor;
+        let angle = weapon.tempNumberOfCartridges * (Math.PI * 2) / weapon.numberOfCartridges;
+
+        let screenPoint = Helper.calculateCircleScreenCoordinates(areaPosition, weapon.range, strokeWidth);
+        let context = pjs.system.getContext();
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = strokeWidth;
+        context.beginPath();
+        context.arc(screenPoint.x, screenPoint.y, weapon.range, 0, angle);
+        strokeWidth && context.stroke();
+    }
+
+    static visualizeSelectingCartridge(brush, weapon, areaPosition, pouchCartridgeColor, strokeWidth) {
+        if(weapon.chargedCartridge && weapon.chargedCartridge.color === pouchCartridgeColor) return;
+        if (!strokeWidth) strokeWidth = 2;
         brush.drawCircle({
-            x: areaPosition.x - 2,
-            y: areaPosition.y - 2,
-            radius: weapon.range + 2,
-            strokeWidth: 2,
+            x: areaPosition.x - strokeWidth,
+            y: areaPosition.y - strokeWidth,
+            radius: weapon.range + strokeWidth,
+            strokeWidth: strokeWidth,
             strokeColor: pouchCartridgeColor
         });
     }
 
-    static showInfo(brush, position, text, color, fontSize){
-        if(!color) color = 'rgba(255, 255, 255, 1.0)';
-        if(!fontSize) fontSize = 22;
+    static showInfo(brush, position, text, color, fontSize) {
+        if (!color) color = 'rgba(255, 255, 255, 1.0)';
+        if (!fontSize) fontSize = 22;
         brush.drawText({
             x: position.x,
             y: position.y,
@@ -74,8 +89,8 @@ class EffectsVisualizer {
         });
     }
 
-    static visualizeHealthBar(startPosition, width, height, tempHealth, maxHealth, color){
-        if(!color) color = 'rgba(255, 0, 0, 1.0)';
+    static visualizeHealthBar(startPosition, width, height, tempHealth, maxHealth, color) {
+        if (!color) color = 'rgba(255, 0, 0, 1.0)';
         let activeBarWidth = width * tempHealth / maxHealth;
         brush.drawRect({
             x: startPosition.x,
