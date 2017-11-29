@@ -31,11 +31,14 @@ gameObject.newLoopFromClassObject('game', new GameLoop(gameObject, new PlayerCon
 gameObject.startLoop('game');
 
 function GameLoop(gameObject, playerConfig, gameConfig) {
+    let visualEntitiesInitializer = new VisualEntitiesInitializer(gameObject);
+
     let player = new Player(gameConfig.getStartWeapon(), playerConfig.playerStartHealth, playerConfig.startSpeed);
-    let visualPlayer = VisualEntitiesInitializer.createVisualPlayer(player, gameObject, playerConfig, gameConfig);
+    let visualPlayer = visualEntitiesInitializer.createVisualPlayer(player, playerConfig, gameConfig);
 
     let visualEnemies = [];
     let visualBullets = [];
+    let visualGrenades = [];
     OOP.fillArr(visualEnemies, 100, function () {
         let visualEnemy = gameObject.newCircleObject({
             x: 500 + Math.random() * 2000, y: 500 + Math.random() * 2000,
@@ -77,7 +80,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             if (weapon.shootWithAutoReloading(visualPlayer.pouch)) {
                 try {
                     let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()));
-                    let visualBullet = VisualEntitiesInitializer.createVisualBullet(bullet, gameObject, visualPlayer.getPositionC());
+                    let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.getPositionC());
                     if (visualBullet) {
                         visualBullets.push(visualBullet);
                     }
@@ -86,6 +89,25 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                     log('Please change cartridges.');
                 }
             }
+        }
+        if (mouse.isDown('RIGHT')) {
+            visualGrenades.push(
+                visualEntitiesInitializer.createVisualGrenade(
+                    new Grenade(
+                        2,
+                        vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
+                        vector.getDistance(visualPlayer.getPositionC(), mouse.getPosition()),
+                        300,
+                        90,
+                        100,
+                        100,
+                        10,
+                        'black',
+                        'rgba(255,255,0,0.6)'
+                    ),
+                    visualPlayer.getPositionC(),
+                    mouse.getPosition()
+                ));
         }
 
         if (key.isDown('1')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 0);
@@ -131,8 +153,8 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         );
         EffectsVisualizer.visualizeHealthBar(point(visualPlayer.x, visualPlayer.y - 10), visualPlayer.radius + 20, 6, visualPlayer.player.health, 100);
 
-
         OOP.forArr(visualBullets, function (visualBullet, index, visualBullets) {
+            //TODO recalculate distance (now distance can be more than max range)
             visualBullet.moveAngle(visualBullet.bullet.speed, visualBullet.bullet.angle);
             visualBullet.draw();
             let visualEnemy = visualBullet.isArrIntersect(visualEnemies);
@@ -146,6 +168,34 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             if (vector.getDistance(visualBullet.startPosition, visualBullet.getPositionC()) >= visualBullet.bullet.maxRange) {
                 visualBullets.splice(index, 1);
             }
+        });
+
+        OOP.forArr(visualGrenades, function (visualGrenade, index, visualGrenades) {
+            //TODO recalculate distance (now distance can be more than max range)
+            visualGrenade.grenade.decreaseExplosionTimer();
+            visualGrenade.moveAngle(visualGrenade.grenade.speed, visualGrenade.grenade.angle);
+            if (visualGrenade.grenade.exploded) {
+                //TODO check all intersections
+                visualGrenade.x = visualGrenade.x + visualGrenade.radius - visualGrenade.grenade.size;
+                visualGrenade.y = visualGrenade.y + visualGrenade.radius - visualGrenade.grenade.size;
+                visualGrenade.radius = visualGrenade.grenade.size;
+                visualGrenade.fillColor = visualGrenade.grenade.color;
+                let visualEnemy = visualGrenade.isArrIntersect(visualEnemies);
+                if (visualEnemy) {
+                    log(visualEnemy);
+                    visualEnemy.enemy.getDamage(visualGrenade.grenade.damagePower);
+                    if (visualEnemy.enemy.dead) {
+                        visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
+                    }
+                }
+                visualGrenades.splice(index, 1);
+            }
+            if (vector.getDistance(visualGrenade.startPosition, visualGrenade.getPositionC()) >= visualGrenade.grenade.maxRange ||
+                vector.getDistance(visualGrenade.startPosition, visualGrenade.getPositionC()) >= visualGrenade.grenade.rangeOfThrow
+            ) {
+                visualGrenade.grenade.startDetonateTimer();
+            }
+            visualGrenade.draw();
         });
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
