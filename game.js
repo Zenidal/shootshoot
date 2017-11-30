@@ -101,6 +101,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                         90,
                         100,
                         100,
+                        50,
                         10,
                         'black',
                         'rgba(255,255,0,0.6)'
@@ -173,6 +174,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         OOP.forArr(visualGrenades, function (visualGrenade, index, visualGrenades) {
             //TODO recalculate distance (now distance can be more than max range)
             visualGrenade.grenade.decreaseExplosionTimer();
+            visualGrenade.grenade.decreaseTempExplosionTime();
             visualGrenade.moveAngle(visualGrenade.grenade.speed, visualGrenade.grenade.angle);
             if (visualGrenade.grenade.exploded) {
                 //TODO check all intersections
@@ -188,6 +190,9 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                         visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
                     }
                 }
+            }
+
+            if (visualGrenade.grenade.destructed) {
                 visualGrenades.splice(index, 1);
             }
             if (vector.getDistance(visualGrenade.startPosition, visualGrenade.getPositionC()) >= visualGrenade.grenade.maxRange ||

@@ -1,5 +1,5 @@
 class Grenade {
-    constructor(speed, angle, rangeOfThrow, maxRange, damagePower, explosionDelay, explosionArea, size, color, explodedColor) {
+    constructor(speed, angle, rangeOfThrow, maxRange, damagePower, explosionDelay, explosionArea, explosionTime, size, color, explodedColor) {
         this._speed = speed;
         this._angle = angle;
         this._maxRange = maxRange;
@@ -8,11 +8,14 @@ class Grenade {
         this._explosionDelay = explosionDelay;
         this._explosionArea = explosionArea;
         this._exploded = false;
+        this._explosionTime = explosionTime;
+        this._tempExplosionTime = 0;
         this._tempExplosionDelay = 0;
         this._size = size;
         this._color = color;
         this._explodedColor = explodedColor;
         this._timerStarted = false;
+        this._destructed = false;
     }
 
     get speed() {
@@ -47,6 +50,18 @@ class Grenade {
         return this._exploded;
     }
 
+    set explosionTime(value) {
+        this._explosionTime = value;
+    }
+
+    set tempExplosionTime(value) {
+        this._tempExplosionTime = value;
+    }
+
+    get destructed() {
+        return this._destructed;
+    }
+
     get size() {
         return this._size;
     }
@@ -67,10 +82,24 @@ class Grenade {
         if (!this._exploded && this._timerStarted) {
             if (this._tempExplosionDelay > 0) this._tempExplosionDelay--;
             if (this._tempExplosionDelay === 0) {
-                this._exploded = true;
-                this._size = this._explosionArea;
-                this._color = this._explodedColor;
+                this.explode();
             }
         }
+    }
+
+    decreaseTempExplosionTime(){
+        if(this._exploded && this._tempExplosionTime > 0){
+            this._tempExplosionTime--;
+        }
+        if(this._exploded && this._tempExplosionTime === 0){
+            this._destructed = true;
+        }
+    }
+
+    explode(){
+        this._exploded = true;
+        this._size = this._explosionArea;
+        this._color = this._explodedColor;
+        this._tempExplosionTime = this._explosionTime;
     }
 }
