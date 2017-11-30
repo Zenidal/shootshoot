@@ -99,7 +99,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                 maxRange: 300,
                 damagePower: 90,
                 explosionDelay: 100,
-                explosionArea: 100,
+                explosionArea: 200,
                 explosionTime: 50,
                 size: 10,
                 color: 'black',
@@ -116,14 +116,14 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                         visualGrenade.y = visualGrenade.y + oldRadius - visualGrenade.grenade.size;
                         visualGrenade.fillColor = visualGrenade.grenade.color;
 
-                        //TODO check all intersections
-                        let visualEnemy = visualGrenade.isArrIntersect(visualEnemies);
-                        if (visualEnemy) {
-                            visualEnemy.enemy.getDamage(visualGrenade.grenade.damagePower);
-                            if (visualEnemy.enemy.dead) {
-                                visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
+                        OOP.forArr(visualEnemies, function (visualEnemy, index, visualEnemies) {
+                            if (visualGrenade.isStaticIntersect(visualEnemy)) {
+                                visualEnemy.enemy.getDamage(visualGrenade.grenade.damagePower);
+                                if (visualEnemy.enemy.dead) {
+                                    visualEnemies.splice(index, 1);
+                                }
                             }
-                        }
+                        });
                     }
                 })
             });
