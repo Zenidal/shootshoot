@@ -1,5 +1,5 @@
 class VisualEntitiesInitializer {
-    constructor(gameObject){
+    constructor(gameObject) {
         this._gameObject = gameObject;
     }
 

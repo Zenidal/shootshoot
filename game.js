@@ -91,24 +91,43 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             }
         }
         if (mouse.isDown('RIGHT')) {
-            visualGrenades.push(
-                visualEntitiesInitializer.createVisualGrenade(
-                    new Grenade(
-                        2,
-                        vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
-                        vector.getDistance(visualPlayer.getPositionC(), mouse.getPosition()),
-                        300,
-                        90,
-                        100,
-                        100,
-                        50,
-                        10,
-                        'black',
-                        'rgba(255,255,0,0.6)'
-                    ),
-                    visualPlayer.getPositionC(),
-                    mouse.getPosition()
-                ));
+            let grenade = new Grenade({
+                speed: 2,
+                angle: vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
+                rangeOfThrow: vector.getDistance(visualPlayer.getPositionC(), mouse.getPosition()),
+                maxRange: 300,
+                damagePower: 90,
+                explosionDelay: 100,
+                explosionArea: 100,
+                explosionTime: 50,
+                size: 10,
+                color: 'black',
+                explodedColor: 'rgba(255,255,0,0.6)'
+            });
+            let visualGrenade = visualEntitiesInitializer.createVisualGrenade(grenade, visualPlayer.getPositionC(), mouse.getPosition());
+
+            grenade.addExplosionCallback(function (grenade) {
+                OOP.forArr(visualGrenades, function (visualGrenade) {
+                    if(visualGrenade.grenade === grenade){
+                        let oldRadius = visualGrenade.radius;
+                        visualGrenade.setRadius(visualGrenade.grenade.size);
+                        visualGrenade.x = visualGrenade.x + oldRadius - visualGrenade.grenade.size;
+                        visualGrenade.y = visualGrenade.y + oldRadius - visualGrenade.grenade.size;
+                        visualGrenade.fillColor = visualGrenade.grenade.color;
+
+                        //TODO check all intersections
+                        let visualEnemy = visualGrenade.isArrIntersect(visualEnemies);
+                        if (visualEnemy) {
+                            visualEnemy.enemy.getDamage(visualGrenade.grenade.damagePower);
+                            if (visualEnemy.enemy.dead) {
+                                visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
+                            }
+                        }
+                    }
+                })
+            });
+
+            visualGrenades.push(visualGrenade);
         }
 
         if (key.isDown('1')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 0);
@@ -176,21 +195,6 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             visualGrenade.grenade.decreaseExplosionTimer();
             visualGrenade.grenade.decreaseTempExplosionTime();
             visualGrenade.moveAngle(visualGrenade.grenade.speed, visualGrenade.grenade.angle);
-            if (visualGrenade.grenade.exploded) {
-                //TODO check all intersections
-                visualGrenade.x = visualGrenade.x + visualGrenade.radius - visualGrenade.grenade.size;
-                visualGrenade.y = visualGrenade.y + visualGrenade.radius - visualGrenade.grenade.size;
-                visualGrenade.radius = visualGrenade.grenade.size;
-                visualGrenade.fillColor = visualGrenade.grenade.color;
-                let visualEnemy = visualGrenade.isArrIntersect(visualEnemies);
-                if (visualEnemy) {
-                    log(visualEnemy);
-                    visualEnemy.enemy.getDamage(visualGrenade.grenade.damagePower);
-                    if (visualEnemy.enemy.dead) {
-                        visualEnemies.splice(visualEnemies.indexOf(visualEnemy), 1);
-                    }
-                }
-            }
 
             if (visualGrenade.grenade.destructed) {
                 visualGrenades.splice(index, 1);
@@ -205,7 +209,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
             EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), visualEnemy.radius + 10, 6, visualEnemy.enemy.health, 100);
-            visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.getPosition()));
+            // visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.getPosition()));
 
             if (visualEnemy.isStaticIntersect(visualPlayer)) {
                 visualPlayer.player.getDamage(1);
