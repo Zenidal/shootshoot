@@ -90,7 +90,8 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                 }
             }
         }
-        if (mouse.isDown('RIGHT')) {
+        if (mouse.isDown('RIGHT') && visualPlayer.tempGrenadeDelay === 0) {
+            visualPlayer.initializeGrenadeDelayTimer();
             let grenade = new Grenade({
                 speed: 2,
                 angle: vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
@@ -152,6 +153,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.tempSpeed);
         visualPlayer.player.weapon.decreaseTempDelayTime();
         visualPlayer.player.weapon.decreaseRechargeDelayTime();
+        visualPlayer.decreaseGrenadeDelay();
         visualPlayer.player.stop();
         visualPlayer.draw();
         EffectsVisualizer.visualizeWeaponArea(
@@ -209,7 +211,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
             EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), visualEnemy.radius + 10, 6, visualEnemy.enemy.health, 100);
-            // visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.getPosition()));
+            visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.getPosition()));
 
             if (visualEnemy.isStaticIntersect(visualPlayer)) {
                 visualPlayer.player.getDamage(1);

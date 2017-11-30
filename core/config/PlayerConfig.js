@@ -5,6 +5,11 @@ class PlayerConfig{
         this._playerStartPosition = {x: 300, y: 300};
         this._color = 'black';
         this._startSpeed = 4;
+        this._grenadeDelay = 50;
+    }
+
+    get grenadeDelay() {
+        return this._grenadeDelay;
     }
 
     get playerSize() {
