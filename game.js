@@ -62,11 +62,13 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         let weapon = visualPlayer.player.weapon;
         if (weapon.shootWithAutoReloading(visualPlayer.pouch)) {
             try {
-                let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), shootPosition));
-                let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.visualObject.getPositionC());
-                if (visualBullet) {
-                    visualBullets.push(visualBullet);
-                }
+                let bullets = weapon.createBulletsFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), shootPosition));
+                OOP.forArr(bullets, function (bullet) {
+                    let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.visualObject.getPositionC());
+                    if (visualBullet) {
+                        visualBullets.push(visualBullet);
+                    }
+                });
             } catch (error) {
                 log(error);
                 log('Please change cartridges.');

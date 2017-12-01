@@ -123,9 +123,19 @@ class RangeWeapon {
         return 0;
     };
 
-    createBulletFromCartridge(cartridge, angle) {
+    createBulletsFromCartridge(cartridge, angle) {
         if (this.isCartridgeSupported(cartridge)) {
-            return new Bullet(this.calculateBulletSpeed(cartridge), angle, cartridge.size, cartridge.color, this._range, cartridge.damagePower + this._power);
+            let bullets = [];
+            for (let i = 0; i < cartridge.numberOfBullets; i++) {
+                let deltaAngle = Math.random() * 10;
+                bullets.push(
+                    new Bullet(
+                        this.calculateBulletSpeed(cartridge), angle + (deltaAngle * (cartridge.numberOfBullets / 2 - i)), cartridge.size, cartridge.color, this._range, cartridge.damagePower + this._power
+                    )
+                )
+            }
+
+            return bullets;
         }
         throw new Error();
     };

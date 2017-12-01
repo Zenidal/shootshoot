@@ -6,6 +6,7 @@ class GameConfig {
             new Pouch(new PistolExpansiveCartridge(), 300, 1000),
             new Pouch(new GunSimpleCartridge(), 150, 1000),
             new Pouch(new GunExpansiveCartridge(), 150, 1000),
+            new Pouch(new GunFractionCartridge(), 150, 1000),
             new Pouch(new AutomaticSimpleCartridge(), 600, 1000),
             new Pouch(new AutomaticExpansiveCartridge(), 600, 1000),
             new Pouch(new SniperRifleSimpleCartridge(), 50, 1000),
