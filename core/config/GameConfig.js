@@ -1,5 +1,6 @@
 class GameConfig {
     constructor() {
+        this._armors = [new LightArmor(), new MiddleArmor(), new HeavyArmor()];
         this._weapons = [new Pistol(), new Gun(), new Automatic(), new SniperRifle()];
         this._pouches = [
             new Pouch(new PistolSimpleCartridge(), 300, 1000),
@@ -15,6 +16,10 @@ class GameConfig {
         ];
     }
 
+    get armors() {
+        return this._armors;
+    }
+
     get weapons() {
         return this._weapons;
     }
@@ -23,11 +28,11 @@ class GameConfig {
         return this._pouches;
     }
 
-    getStartWeapon(){
+    getStartWeapon() {
         return this._weapons[0];
     }
 
-    getStartPouch(){
+    getStartPouch() {
         return this._pouches[0];
     }
 }

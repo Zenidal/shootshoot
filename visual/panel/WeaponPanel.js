@@ -1,36 +1,37 @@
-class WeaponPanel {
-    constructor(gameObject, OOP) {
-        this._gameObject = gameObject;
-        this._OOP = OOP;
+class WeaponPanel extends Panel{
+    constructor(gameObject, OOP, startPosition) {
+        super(gameObject, OOP, startPosition);
         this._weaponsToSelection = [];
     }
 
-    initialize(weapons, x, y) {
-        this._OOP.forArr(weapons, function (weapon) {
+    get weaponsToSelection() {
+        return this._weaponsToSelection;
+    }
+
+    initialize(weapons) {
+        this._OOP.forArr(weapons, function (weapon, index) {
             let textSize = 30;
-            let weaponToSelection = {
+            let weaponToSelection = this._gameObject.newTextObject({
+                x: this._position.x, y: this._position.y + (textSize + 5) * index,
                 text: weapon.constructor.name,
                 size: textSize,
-                color: 'rgba(255,255,255,1.0)',
+                color: this._color,
                 padding: 0,
-                strokeColorText: 'red',
-                strokeWidthText: 1
-            };
+                fillColor: this._fillColor,
+                strokeColor: this._strokeColor,
+                strokeWidth: 1,
+                align: 'center'
+            });
+            weaponToSelection.w = 200;
             weaponToSelection.weapon = weapon;
             this._weaponsToSelection.push(weaponToSelection);
         }.bind(this));
     }
 
-    drawPanel(brush, position) {
-        OOP.forArr(this._weaponsToSelection, function (weaponToSelection, index) {
-            brush.drawTextS({
-                x: position.x, y: position.y + weaponToSelection.size * index,
-                text: weaponToSelection.text,
-                color: weaponToSelection.color,
-                size: weaponToSelection.size,
-                strokeColor: weaponToSelection.strokeColorText,
-                strokeWidth: weaponToSelection.strokeWidthText
-            });
-        });
+    drawPanel(visualPlayer) {
+        OOP.forArr(this._weaponsToSelection, function (weaponToSelection) {
+            weaponToSelection.fillColor = weaponToSelection.weapon === visualPlayer.player.weapon ? this._selecedColor : this._fillColor;
+            weaponToSelection.draw();
+        }.bind(this));
     }
 }

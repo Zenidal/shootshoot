@@ -87,7 +87,6 @@ function GameLoop(playerConfig, gameConfig) {
             visualPlayer.visualObject.y + visualPlayer.visualObject.radius - visualPlayer.player.weapon.range
         );
 
-        weaponPanel.drawPanel(brush, point(0, 120));
         EffectsVisualizer.visualizeWeaponArea(brush, visualPlayer.player.weapon, visualizePoint);
         EffectsVisualizer.visualizeSelectingCartridge(brush, visualPlayer.player.weapon, visualizePoint, visualPlayer.pouch.cartridge.color, 2);
         EffectsVisualizer.visualizeCartridges(visualPlayer.player.weapon, visualizePoint, 2);

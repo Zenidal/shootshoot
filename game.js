@@ -29,8 +29,9 @@ let height = gameObject.getWH().h; // height of scene viewport
 let gameConfig = new GameConfig();
 let playerConfig = new PlayerConfig();
 
-let weaponPanel = new WeaponPanel(gameObject, OOP);
-weaponPanel.initialize(gameConfig.weapons, 0, 300);
+let weaponPanel = new WeaponPanel(gameObject, OOP, point(0, 0));
+let pouchPanel = new PouchPanel(gameObject, OOP, point(200, 0));
+let armorPanel = new ArmorPanel(gameObject, OOP, point(400, 0));
 
 let visualEntitiesInitializer = new VisualEntitiesInitializer(gameObject);
 
