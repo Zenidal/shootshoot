@@ -31,6 +31,9 @@ gameObject.newLoopFromClassObject('game', new GameLoop(gameObject, new PlayerCon
 gameObject.startLoop('game');
 
 function GameLoop(gameObject, playerConfig, gameConfig) {
+    let weaponPanel = new WeaponPanel(gameObject, OOP);
+    weaponPanel.initialize(gameConfig.weapons, 0, 300);
+
     let visualEntitiesInitializer = new VisualEntitiesInitializer(gameObject);
 
     let player = new Player(gameConfig.getStartWeapon(), playerConfig.playerStartHealth, playerConfig.startSpeed);
@@ -55,6 +58,22 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         }
     };
 
+    let shoot = function (shootPosition) {
+        let weapon = visualPlayer.player.weapon;
+        if (weapon.shootWithAutoReloading(visualPlayer.pouch)) {
+            try {
+                let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), shootPosition));
+                let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.visualObject.getPositionC());
+                if (visualBullet) {
+                    visualBullets.push(visualBullet);
+                }
+            } catch (error) {
+                log(error);
+                log('Please change cartridges.');
+            }
+        }
+    };
+
     this.update = function () {
         gameObject.clear();
         if (mouse.isWheel('UP')) {
@@ -64,19 +83,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             visualPlayer.getPrevPouch(gameConfig.pouches, visualPlayer.pouch);
         }
         if (mouse.isDown('LEFT')) {
-            let weapon = visualPlayer.player.weapon;
-            if (weapon.shootWithAutoReloading(visualPlayer.pouch)) {
-                try {
-                    let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), mouse.getPosition()));
-                    let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.visualObject.getPositionC());
-                    if (visualBullet) {
-                        visualBullets.push(visualBullet);
-                    }
-                } catch (error) {
-                    log(error);
-                    log('Please change cartridges.');
-                }
-            }
+            shoot(mouse.getPosition());
         }
         if (mouse.isDown('RIGHT') && visualPlayer.player.canThrowGrenade()) {
             visualPlayer.player.initializeGrenadeDelayTimer();
@@ -133,10 +140,10 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
 
         camera.follow(visualPlayer.visualObject, 30);
         EffectsVisualizer.visualizeGrid(brush, camera, 50);
-        EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y), 'Enemies: ' + visualEnemies.length);
-        EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 30), 'Number of cartridges: ' + visualPlayer.player.weapon.tempNumberOfCartridges);
-        EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 60), 'Total number of cartridges: ' + visualPlayer.pouch.tempCount);
-        EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 90), 'FPS: ' + pjs.system.getFPS());
+        EffectsVisualizer.showInfo(brush, point(0, 0), 'Enemies: ' + visualEnemies.length);
+        EffectsVisualizer.showInfo(brush, point(0, 30), 'Number of cartridges: ' + visualPlayer.player.weapon.tempNumberOfCartridges);
+        EffectsVisualizer.showInfo(brush, point(0, 60), 'Total number of cartridges: ' + visualPlayer.pouch.tempCount);
+        EffectsVisualizer.showInfo(brush, point(0, 90), 'FPS: ' + pjs.system.getFPS());
 
         vector.moveCollision(visualPlayer.visualObject, visualEnemies, visualPlayer.player.tempSpeed);
         visualPlayer.player.weapon.decreaseTempDelayTime();
@@ -150,6 +157,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             visualPlayer.visualObject.y + visualPlayer.visualObject.radius - visualPlayer.player.weapon.range
         );
 
+        weaponPanel.drawPanel(brush, point(0, 120));
         EffectsVisualizer.visualizeWeaponArea(brush, visualPlayer.player.weapon, visualizePoint);
         EffectsVisualizer.visualizeSelectingCartridge(brush, visualPlayer.player.weapon, visualizePoint, visualPlayer.pouch.cartridge.color, 2);
         EffectsVisualizer.visualizeCartridges(visualPlayer.player.weapon, visualizePoint, 2);

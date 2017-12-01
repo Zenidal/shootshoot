@@ -80,7 +80,7 @@ class EffectsVisualizer {
     static showInfo(brush, position, text, color, fontSize) {
         if (!color) color = 'rgba(255, 255, 255, 1.0)';
         if (!fontSize) fontSize = 22;
-        brush.drawText({
+        brush.drawTextS({
             x: position.x,
             y: position.y,
             text: text,
