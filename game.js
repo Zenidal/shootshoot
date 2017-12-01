@@ -34,7 +34,7 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
     let visualEntitiesInitializer = new VisualEntitiesInitializer(gameObject);
 
     let player = new Player(gameConfig.getStartWeapon(), playerConfig.playerStartHealth, playerConfig.startSpeed);
-    let visualPlayer = visualEntitiesInitializer.createVisualPlayer(player, playerConfig, gameConfig);
+    let visualPlayer = new VisualPlayer(gameObject, player, playerConfig, gameConfig);
 
     let visualEnemies = [];
     let visualBullets = [];
@@ -49,18 +49,6 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         return visualEnemy;
     });
 
-    let getNextPouch = function (pouches, pouch) {
-        let currentPosition = pouches.indexOf(pouch);
-        let nextPosition = (currentPosition + 1) >= pouches.length ? 0 : currentPosition + 1;
-        return pouches[nextPosition];
-    };
-
-    let getPrevPouch = function (pouches, pouch) {
-        let currentPosition = pouches.indexOf(pouch);
-        let previousPosition = (currentPosition - 1) <= 0 ? pouches.length - 1 : currentPosition - 1;
-        return pouches[previousPosition];
-    };
-
     let changeWeapon = function (weapons, number) {
         if (weapons[number]) {
             return weapons[number];
@@ -70,17 +58,17 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
     this.update = function () {
         gameObject.clear();
         if (mouse.isWheel('UP')) {
-            visualPlayer.pouch = getNextPouch(gameConfig.pouches, visualPlayer.pouch);
+            visualPlayer.getNextPouch(gameConfig.pouches, visualPlayer.pouch);
         }
         if (mouse.isWheel('DOWN')) {
-            visualPlayer.pouch = getPrevPouch(gameConfig.pouches, visualPlayer.pouch);
+            visualPlayer.getPrevPouch(gameConfig.pouches, visualPlayer.pouch);
         }
         if (mouse.isDown('LEFT')) {
             let weapon = visualPlayer.player.weapon;
             if (weapon.shootWithAutoReloading(visualPlayer.pouch)) {
                 try {
-                    let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()));
-                    let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.getPositionC());
+                    let bullet = weapon.createBulletFromCartridge(weapon.chargedCartridge, vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), mouse.getPosition()));
+                    let visualBullet = visualEntitiesInitializer.createVisualBullet(bullet, visualPlayer.visualObject.getPositionC());
                     if (visualBullet) {
                         visualBullets.push(visualBullet);
                     }
@@ -90,12 +78,12 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                 }
             }
         }
-        if (mouse.isDown('RIGHT') && visualPlayer.tempGrenadeDelay === 0) {
-            visualPlayer.initializeGrenadeDelayTimer();
+        if (mouse.isDown('RIGHT') && visualPlayer.player.canThrowGrenade()) {
+            visualPlayer.player.initializeGrenadeDelayTimer();
             let grenade = new Grenade({
                 speed: 5,
-                angle: vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
-                rangeOfThrow: vector.getDistance(visualPlayer.getPositionC(), mouse.getPosition()),
+                angle: vector.getAngle2Points(visualPlayer.visualObject.getPositionC(), mouse.getPosition()),
+                rangeOfThrow: vector.getDistance(visualPlayer.visualObject.getPositionC(), mouse.getPosition()),
                 maxRange: 300,
                 damagePower: 90,
                 explosionDelay: 50,
@@ -105,11 +93,11 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
                 color: 'black',
                 explodedColor: 'rgba(255,255,0,0.3)'
             });
-            let visualGrenade = visualEntitiesInitializer.createVisualGrenade(grenade, visualPlayer.getPositionC(), mouse.getPosition());
+            let visualGrenade = visualEntitiesInitializer.createVisualGrenade(grenade, visualPlayer.visualObject.getPositionC(), mouse.getPosition());
 
             grenade.addExplosionCallback(function (grenade) {
                 OOP.forArr(visualGrenades, function (visualGrenade) {
-                    if(visualGrenade.grenade === grenade){
+                    if (visualGrenade.grenade === grenade) {
                         let oldRadius = visualGrenade.radius;
                         visualGrenade.setRadius(visualGrenade.grenade.size);
                         visualGrenade.x = visualGrenade.x + oldRadius - visualGrenade.grenade.size;
@@ -131,10 +119,10 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
             visualGrenades.push(visualGrenade);
         }
 
-        if (key.isDown('1')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 0);
-        if (key.isDown('2')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 1);
-        if (key.isDown('3')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 2);
-        if (key.isDown('4')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 3);
+        if (key.isPress('1')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 0);
+        if (key.isPress('2')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 1);
+        if (key.isPress('3')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 2);
+        if (key.isPress('4')) visualPlayer.player.weapon = changeWeapon(gameConfig.weapons, 3);
 
         if (key.isDown('W') || key.isDown('UP')) visualPlayer.player.moveTop();
         if (key.isDown('S') || key.isDown('DOWN')) visualPlayer.player.moveBottom();
@@ -143,37 +131,29 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
 
         if (key.isDown('R')) visualPlayer.player.weapon.startRecharge(visualPlayer.pouch);
 
-        camera.follow(visualPlayer, 30);
+        camera.follow(visualPlayer.visualObject, 30);
         EffectsVisualizer.visualizeGrid(brush, camera, 50);
         EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y), 'Enemies: ' + visualEnemies.length);
         EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 30), 'Number of cartridges: ' + visualPlayer.player.weapon.tempNumberOfCartridges);
         EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 60), 'Total number of cartridges: ' + visualPlayer.pouch.tempCount);
         EffectsVisualizer.showInfo(brush, point(camera.getPosition().x, camera.getPosition().y + 90), 'FPS: ' + pjs.system.getFPS());
 
-        vector.moveCollision(visualPlayer, visualEnemies, visualPlayer.player.tempSpeed);
+        vector.moveCollision(visualPlayer.visualObject, visualEnemies, visualPlayer.player.tempSpeed);
         visualPlayer.player.weapon.decreaseTempDelayTime();
         visualPlayer.player.weapon.decreaseRechargeDelayTime();
-        visualPlayer.decreaseGrenadeDelay();
+        visualPlayer.player.decreaseGrenadeDelay();
         visualPlayer.player.stop();
-        visualPlayer.draw();
-        EffectsVisualizer.visualizeWeaponArea(
-            brush,
-            visualPlayer.player.weapon,
-            point(visualPlayer.x + visualPlayer.radius - visualPlayer.player.weapon.range, visualPlayer.y + visualPlayer.radius - visualPlayer.player.weapon.range)
+        visualPlayer.visualObject.draw();
+
+        let visualizePoint = point(
+            visualPlayer.visualObject.x + visualPlayer.visualObject.radius - visualPlayer.player.weapon.range,
+            visualPlayer.visualObject.y + visualPlayer.visualObject.radius - visualPlayer.player.weapon.range
         );
-        EffectsVisualizer.visualizeSelectingCartridge(
-            brush,
-            visualPlayer.player.weapon,
-            point(visualPlayer.x + visualPlayer.radius - visualPlayer.player.weapon.range, visualPlayer.y + visualPlayer.radius - visualPlayer.player.weapon.range),
-            visualPlayer.pouch.cartridge.color,
-            2
-        );
-        EffectsVisualizer.visualizeCartridges(
-            visualPlayer.player.weapon,
-            point(visualPlayer.x + visualPlayer.radius - visualPlayer.player.weapon.range, visualPlayer.y + visualPlayer.radius - visualPlayer.player.weapon.range),
-            2
-        );
-        EffectsVisualizer.visualizeHealthBar(point(visualPlayer.x, visualPlayer.y - 10), visualPlayer.radius + 20, 6, visualPlayer.player.health, 100);
+
+        EffectsVisualizer.visualizeWeaponArea(brush, visualPlayer.player.weapon, visualizePoint);
+        EffectsVisualizer.visualizeSelectingCartridge(brush, visualPlayer.player.weapon, visualizePoint, visualPlayer.pouch.cartridge.color, 2);
+        EffectsVisualizer.visualizeCartridges(visualPlayer.player.weapon, visualizePoint, 2);
+        EffectsVisualizer.visualizeHealthBar(point(visualPlayer.visualObject.x, visualPlayer.visualObject.y - 10), 2 * visualPlayer.visualObject.radius, 6, visualPlayer.player.health, 100);
 
         OOP.forArr(visualBullets, function (visualBullet, index, visualBullets) {
             //TODO recalculate distance (now distance can be more than max range)
@@ -211,9 +191,9 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
             EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), visualEnemy.radius + 10, 6, visualEnemy.enemy.health, 100);
-            visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.getPosition()));
+            visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.visualObject.getPosition()));
 
-            if (visualEnemy.isStaticIntersect(visualPlayer)) {
+            if (visualEnemy.isStaticIntersect(visualPlayer.visualObject)) {
                 visualPlayer.player.getDamage(1);
                 if (visualPlayer.player.dead) pjs.game.stop();
             }

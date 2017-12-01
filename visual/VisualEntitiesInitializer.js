@@ -3,27 +3,6 @@ class VisualEntitiesInitializer {
         this._gameObject = gameObject;
     }
 
-    createVisualPlayer(player, playerConfig, gameConfig) {
-        let visualPlayer = this._gameObject.newCircleObject({
-            x: playerConfig.playerStartPosition.x, y: playerConfig.playerStartPosition.y,
-            radius: playerConfig.playerSize / 2,
-            strokeColor: 'red',
-            strokeWidth: 3,
-            fillColor: playerConfig.color,
-        });
-        visualPlayer.player = player;
-        visualPlayer.pouch = gameConfig.getStartPouch();
-        visualPlayer.grenadeDelay = playerConfig._grenadeDelay;
-        visualPlayer.tempGrenadeDelay = 0;
-        visualPlayer.initializeGrenadeDelayTimer = function () {
-            this.tempGrenadeDelay = this.grenadeDelay;
-        }.bind(visualPlayer);
-        visualPlayer.decreaseGrenadeDelay = function () {
-            if (this.tempGrenadeDelay > 0) this.tempGrenadeDelay--;
-        }.bind(visualPlayer);
-        return visualPlayer;
-    }
-
     createVisualBullet(bullet, startPosition) {
         let visualBullet = this._gameObject.newCircleObject({
             x: startPosition.x, y: startPosition.y,

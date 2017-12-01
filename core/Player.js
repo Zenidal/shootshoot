@@ -1,11 +1,20 @@
 class Player {
-    constructor(weapon, startHealth, speed) {
+    constructor(weapon, startHealth, speed, grenadeDelay) {
         this._weapon = weapon;
         this._health = startHealth;
         this._tempSpeed = point(0, 0);
         this._speed = speed; //it's not point
         this._armor = null;
         this._dead = false;
+        this._grenadeDelay = grenadeDelay;
+        this._tempGrenadeDelay = 0;
+    }
+    get grenadeDelay() {
+        return this._grenadeDelay;
+    }
+
+    get tempGrenadeDelay() {
+        return this._tempGrenadeDelay;
     }
 
     get weapon() {
@@ -38,6 +47,18 @@ class Player {
 
     get dead() {
         return this._dead;
+    }
+
+    initializeGrenadeDelayTimer() {
+        this._tempGrenadeDelay = this._grenadeDelay;
+    };
+
+    decreaseGrenadeDelay() {
+        if (this._tempGrenadeDelay > 0) this._tempGrenadeDelay--;
+    };
+
+    canThrowGrenade(){
+        return this._tempGrenadeDelay === 0;
     }
 
     getDamage(damage) {
