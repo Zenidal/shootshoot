@@ -93,17 +93,17 @@ function GameLoop(gameObject, playerConfig, gameConfig) {
         if (mouse.isDown('RIGHT') && visualPlayer.tempGrenadeDelay === 0) {
             visualPlayer.initializeGrenadeDelayTimer();
             let grenade = new Grenade({
-                speed: 2,
+                speed: 5,
                 angle: vector.getAngle2Points(visualPlayer.getPositionC(), mouse.getPosition()),
                 rangeOfThrow: vector.getDistance(visualPlayer.getPositionC(), mouse.getPosition()),
                 maxRange: 300,
                 damagePower: 90,
-                explosionDelay: 100,
+                explosionDelay: 50,
                 explosionArea: 200,
                 explosionTime: 50,
                 size: 10,
                 color: 'black',
-                explodedColor: 'rgba(255,255,0,0.6)'
+                explodedColor: 'rgba(255,255,0,0.3)'
             });
             let visualGrenade = visualEntitiesInitializer.createVisualGrenade(grenade, visualPlayer.getPositionC(), mouse.getPosition());
 
