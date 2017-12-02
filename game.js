@@ -28,6 +28,11 @@ let height = gameObject.getWH().h; // height of scene viewport
 
 let gameConfig = new GameConfig();
 let playerConfig = new PlayerConfig();
+let levelMap = Loader.load(map, 0);
+let visualMap = new VisualMap(levelMap, 50);
+visualMap.init(gameObject);
+let mapVisualizer = new MapVisualizer(visualMap);
+mapVisualizer.init();
 
 let weaponPanel = new WeaponPanel(gameObject, OOP, point(0, 0));
 let pouchPanel = new PouchPanel(gameObject, OOP, point(200, 0));

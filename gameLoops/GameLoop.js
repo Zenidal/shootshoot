@@ -69,13 +69,14 @@ function GameLoop(playerConfig, gameConfig) {
         }
 
         camera.follow(visualPlayer.visualObject, 30);
-        EffectsVisualizer.visualizeGrid(brush, camera, 50);
+        mapVisualizer.visualize(camera);
+        mapVisualizer.visualizeGrid(brush, camera, 'rgba(0, 255, 0, 0.1)');
         EffectsVisualizer.showInfo(brush, point(0, 0), 'Enemies: ' + visualEnemies.length);
         EffectsVisualizer.showInfo(brush, point(0, 30), 'Number of cartridges: ' + visualPlayer.player.weapon.tempNumberOfCartridges);
         EffectsVisualizer.showInfo(brush, point(0, 60), 'Total number of cartridges: ' + visualPlayer.pouch.tempCount);
         EffectsVisualizer.showInfo(brush, point(0, 90), 'FPS: ' + pjs.system.getFPS());
 
-        vector.moveCollision(visualPlayer.visualObject, visualEnemies, visualPlayer.player.tempSpeed);
+        vector.moveCollision(visualPlayer.visualObject, visualMap.getObstaclesObjects(), visualPlayer.player.tempSpeed);
         visualPlayer.player.weapon.decreaseTempDelayTime();
         visualPlayer.player.weapon.decreaseRechargeDelayTime();
         visualPlayer.player.decreaseGrenadeDelay();
@@ -128,8 +129,11 @@ function GameLoop(playerConfig, gameConfig) {
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
             EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), visualEnemy.radius + 10, 6, visualEnemy.enemy.health, 100);
-            visualEnemy.moveAngle(visualEnemy.enemy.speed, vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.visualObject.getPosition()));
+            let angle = vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.visualObject.getPosition());
+            let speedProjection = point(Math.cos(visualPlayer.player.tempSpeed), Math.sin(visualPlayer.player.tempSpeed));
+            vector.moveCollision(visualEnemy, visualMap.getObstaclesObjects(), speedProjection, function () {
 
+            });
             if (visualEnemy.isStaticIntersect(visualPlayer.visualObject)) {
                 visualPlayer.player.getDamage(1);
                 if (visualPlayer.player.dead) pjs.game.stop();

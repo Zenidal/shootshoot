@@ -8,7 +8,7 @@ class WeaponPanel extends Panel{
         return this._weaponsToSelection;
     }
 
-    initialize(weapons) {
+    init(weapons) {
         this._OOP.forArr(weapons, function (weapon, index) {
             let textSize = 30;
             let weaponToSelection = this._gameObject.newTextObject({

@@ -8,7 +8,7 @@ class ArmorPanel extends Panel{
         return this._armorsToSelection;
     }
 
-    initialize(armors) {
+    init(armors) {
         this._OOP.forArr(armors, function (armor, index) {
             let textSize = 30;
             let armorToSelection = this._gameObject.newTextObject({

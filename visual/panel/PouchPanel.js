@@ -8,7 +8,7 @@ class PouchPanel extends Panel{
         return this._pouchesToSelection;
     }
 
-    initialize(pouchs) {
+    init(pouchs) {
         this._OOP.forArr(pouchs, function (pouch, index) {
             let textSize = 30;
             let pouchToSelection = this._gameObject.newTextObject({

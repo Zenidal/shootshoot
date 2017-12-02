@@ -1,30 +1,4 @@
 class EffectsVisualizer {
-    static visualizeGrid(brush, camera, cellSize, color, width) {
-        if (!width) width = 1;
-        if (!color) color = 'green';
-        if (!cellSize) size = 50;
-
-        let startCameraX = camera.getPosition().x,
-            endCameraX = camera.getPosition().x + (camera.getPositionC().x - camera.getPosition().x) * 2,
-            startCameraY = camera.getPosition().y,
-            endCameraY = camera.getPosition().y + (camera.getPositionC().y - camera.getPosition().y) * 2;
-        let horizontalCellCount = Math.ceil((endCameraX - startCameraX) / cellSize),
-            verticalCellCount = Math.ceil((endCameraY - startCameraY) / cellSize);
-        let startX = Math.floor(startCameraX / cellSize) * cellSize,
-            startY = Math.floor(startCameraY / cellSize) * cellSize;
-        for (let row = 0; row < verticalCellCount; row++) {
-            for (let column = 0; column < horizontalCellCount; column++) {
-                brush.drawRect({
-                    x: startX + cellSize * column,
-                    y: startY + cellSize * row,
-                    w: cellSize, h: cellSize,
-                    strokeColor: color,
-                    strokeWidth: width
-                });
-            }
-        }
-    };
-
     static visualizeWeaponArea(brush, weapon, areaPosition, overflow) {
         if (!overflow) overflow = 0.2;
 

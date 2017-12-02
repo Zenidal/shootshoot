@@ -1,7 +1,7 @@
 function InventoryLoop(playerConfig, gameConfig) {
-    weaponPanel.initialize(gameConfig.weapons);
-    pouchPanel.initialize(gameConfig.pouches);
-    armorPanel.initialize(gameConfig.armors);
+    weaponPanel.init(gameConfig.weapons);
+    pouchPanel.init(gameConfig.pouches);
+    armorPanel.init(gameConfig.armors);
 
     this.update = function () {
         if (key.isPress('ESC')) {
