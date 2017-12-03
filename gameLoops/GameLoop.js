@@ -64,7 +64,7 @@ function GameLoop(playerConfig, gameConfig) {
 
         if (key.isDown('R')) visualPlayer.player.weapon.startRecharge(visualPlayer.pouch);
 
-        if(key.isPress('ESC')){
+        if (key.isPress('ESC')) {
             gameObject.setLoop('inventory');
         }
 
@@ -128,9 +128,9 @@ function GameLoop(playerConfig, gameConfig) {
         });
 
         OOP.drawArr(visualEnemies, function (visualEnemy) {
-            EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), visualEnemy.radius + 10, 6, visualEnemy.enemy.health, 100);
+            EffectsVisualizer.visualizeHealthBar(point(visualEnemy.x, visualEnemy.y - 10), 2 * visualEnemy.radius, 6, visualEnemy.enemy.health, 100);
             let angle = vector.getAngle2Points(visualEnemy.getPosition(), visualPlayer.visualObject.getPosition());
-            let speedProjection = point(Math.cos(visualPlayer.player.tempSpeed), Math.sin(visualPlayer.player.tempSpeed));
+            let speedProjection = point(Math.cos(angle) * visualPlayer.player.speed, Math.sin(angle) * visualPlayer.player.speed);
             vector.moveCollision(visualEnemy, visualMap.getObstaclesObjects(), speedProjection, function () {
 
             });
